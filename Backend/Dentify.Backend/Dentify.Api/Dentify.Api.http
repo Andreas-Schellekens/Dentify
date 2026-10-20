@@ -1,0 +1,6 @@
+@Dentify.Api_HostAddress = http://localhost:5152
+
+GET {{Dentify.Api_HostAddress}}/swagger/
+Accept: application/json
+
+###

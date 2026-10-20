@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="Dentify.Backend/Dentify.Backend.csproj" />
+  <Project Path="Dentify.Api/Dentify.Api.csproj" />
+  <Project Path="Dentify.Contracts/Dentify.Contracts.csproj" />
+  <Project Path="Dentify.Domain/Dentify.Domain.csproj" />
+  <Project Path="Dentify.Infrastructure/Dentify.Infrastructure.csproj" />
 </Solution>

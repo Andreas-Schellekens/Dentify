@@ -16,21 +16,23 @@ School project (AI.NET, Challenge 1, team of two). A cross-platform **.NET MAUI*
 
 ## Repository layout
 
-One git repo, two solutions in two folders. The developer creates the empty solutions and projects in Visual Studio. Claude Code writes the code inside them. Do not create, rename or delete projects, and do not edit `.sln` files, unless asked.
+One git repo, two solutions in two folders. Solutions use the `.slnx` format. The project structure below is in place. Do not create, rename or delete projects, and do not edit `.slnx` files, unless asked.
 
 ```
 Dentify/                              (repo root, this file lives here)
 ├── CLAUDE.md
-├── docs/dotnet-api-naslag.md
-├── backend/
-│   ├── Dentify.Backend.sln
-│   ├── Dentify.Api/                  → Presentation (controllers, mapping profiles, strategies, Program.cs)
-│   ├── Dentify.Contracts/            → DTOs, also used by the MAUI app
-│   ├── Dentify.Domain/               → Entities
-│   └── Dentify.Infrastructure/       → DbContext, repositories, migrations
-└── maui/
-    ├── Dentify.Maui.sln
-    └── Dentify.Maui/                 → .NET MAUI app
+├── dotnet-api-naslag.md
+├── Backend/
+│   └── Dentify.Backend/
+│       ├── Dentify.Backend.slnx
+│       ├── Dentify.Api/              → Presentation (controllers, mapping profiles, strategies, Program.cs)
+│       ├── Dentify.Contracts/        → DTOs (Models/), also used by the MAUI app
+│       ├── Dentify.Domain/           → Entities
+│       └── Dentify.Infrastructure/   → DbContext, repositories, migrations
+└── Maui/
+    └── Dentify.Maui/
+        ├── Dentify.Maui.slnx
+        └── Dentify.Maui/             → .NET MAUI app
 ```
 
 Project references:
@@ -39,7 +41,7 @@ Project references:
 |---|---|
 | Dentify.Api | Contracts, Infrastructure |
 | Dentify.Infrastructure | Domain |
-| Dentify.Maui | `Dentify.Contracts` via a relative path: `..\..\backend\Dentify.Contracts\Dentify.Contracts.csproj` |
+| Dentify.Maui | `Dentify.Contracts` via a relative path: `..\..\..\Backend\Dentify.Backend\Dentify.Contracts\Dentify.Contracts.csproj` |
 | Dentify.Contracts, Dentify.Domain | nothing |
 
 Dentify.Api has **no** direct reference to Domain. Contracts must stay free of any package or project dependency so the MAUI app can reference it. If the cross-solution reference gives trouble, copy the DTOs into the MAUI project instead and say so.
@@ -57,7 +59,7 @@ Dentify.Api has **no** direct reference to Domain. Contracts must stay free of a
 
 ## API conventions
 
-The full reference is in @docs/dotnet-api-naslag.md. Follow it. Key points:
+The full reference is in @dotnet-api-naslag.md. Follow it. Key points:
 
 - .NET 10, EF Core, SQL Server LocalDB, AutoMapper, Swagger (Swashbuckle), `<Nullable>annotations</Nullable>` in every `.csproj`.
 - Entities in `Domain/Entities`, configured with **data annotations**. Fluent API only for many-to-many and seeding (`HasData`). Constructors must assign all required properties.
@@ -67,7 +69,7 @@ The full reference is in @docs/dotnet-api-naslag.md. Follow it. Key points:
 - AutoMapper profiles in `Api/MappingProfiles`, one `XProfile : Profile` per resource. Every mapped pair needs a `CreateMap`.
 - In `Program.cs` all `builder.Services...` calls go **before** `builder.Build()`. Order in the pipeline: `UseCors` → `UseAuthentication` → `UseAuthorization` → `MapControllers`.
 - Connection string key: `ConnectionStrings:DentifyDBConnectionString` in `appsettings.json`.
-- Migrations: default project `Dentify.Infrastructure`, startup project `Dentify.Api`. From the CLI, run inside `backend/`:
+- Migrations: default project `Dentify.Infrastructure`, startup project `Dentify.Api`. From the CLI, run inside `Backend/Dentify.Backend/`:
   `dotnet ef migrations add <Name> --project Dentify.Infrastructure --startup-project Dentify.Api` and then `dotnet ef database update` with the same flags. Use a descriptive migration name. Ask before running `database update`.
 
 ## Azure integration
@@ -105,7 +107,7 @@ One `Vehicle` has many `Inspection`s. One `Inspection` has many `Damage`s.
 ## Working agreement
 
 - Prefer complete, runnable files over fragments. Match the existing style of the file you edit.
-- Build before saying something works: `dotnet build backend/Dentify.Backend.sln` for the backend. MAUI builds are done by the developer in Visual Studio unless asked.
+- Build before saying something works: `dotnet build Backend/Dentify.Backend/Dentify.Backend.slnx` for the backend. For the MAUI app, a quick check is `dotnet build Maui/Dentify.Maui/Dentify.Maui/Dentify.Maui.csproj -f net10.0-windows10.0.19041.0`; device builds are done by the developer in Visual Studio.
 - Keep changes small and focused. Mention which files changed and what the developer must do manually (migrations, secrets, Azure portal steps).
 - When a requirement above conflicts with a request, point it out instead of silently breaking it.
 - Do not add libraries that are not in this file or in the naslag without asking.
