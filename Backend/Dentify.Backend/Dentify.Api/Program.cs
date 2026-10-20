@@ -1,4 +1,5 @@
 using Dentify.Infrastructure.DbContexts;
+using Dentify.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DentifyContext>(options =>
     options.UseSqlServer(
         builder.Configuration["ConnectionStrings:DentifyDBConnectionString"]));
+
+// License key comes from user-secrets or appsettings.Development.json ("AutoMapper:LicenseKey")
+builder.Services.AddAutoMapper(
+    cfg => cfg.LicenseKey = builder.Configuration["AutoMapper:LicenseKey"],
+    AppDomain.CurrentDomain.GetAssemblies());
+
+// Repositories: always Scoped
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IInspectionRepository, InspectionRepository>();
+builder.Services.AddScoped<IDamageRepository, DamageRepository>();
 
 var app = builder.Build();
 
