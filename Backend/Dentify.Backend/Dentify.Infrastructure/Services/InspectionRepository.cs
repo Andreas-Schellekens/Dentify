@@ -30,7 +30,10 @@ namespace Dentify.Infrastructure.Services
             {
                 InspectionInclude.Vehicle => query.Include(i => i.Vehicle),
                 InspectionInclude.Damages => query.Include(i => i.Damages),
-                InspectionInclude.VehicleAndDamages => query.Include(i => i.Vehicle).Include(i => i.Damages),
+                InspectionInclude.All => query.Include(i => i.Vehicle)
+                                              .Include(i => i.Damages)
+                                              .Include(i => i.Photos.OrderBy(p => p.UploadedAt))
+                                              .AsSplitQuery(),
                 _ => query
             };
 

@@ -99,10 +99,20 @@ The full reference is in @dotnet-api-naslag.md. Follow it. Key points:
 | Entity | Fields |
 |---|---|
 | Vehicle | Id, LicensePlate, Brand, Model, Type |
-| Inspection | Id, VehicleId (FK), Type (Departure/Return), Date, InspectorName, PhotoUrl, DamageDetected, AiSummary |
-| Damage (optional) | Id, InspectionId (FK), Description, Severity, Location, Confidence |
+| Inspection | Id, VehicleId (FK), Type (Departure/Return), Date, InspectorName, PhotoUrl (cover photo = first upload), DamageDetected, AiSummary |
+| InspectionPhoto | Id, InspectionId (FK), Url, UploadedAt |
+| Damage | Id, InspectionId (FK), Description, Severity (Minor/Moderate/Severe), Location, Confidence |
 
-One `Vehicle` has many `Inspection`s. One `Inspection` has many `Damage`s.
+One `Vehicle` has many `Inspection`s. One `Inspection` has many `InspectionPhoto`s and many `Damage`s.
+
+Photos are stored by the API in `Dentify.Api/uploads/` (git-ignored) and served at `/uploads/...`. Photo URLs in DTOs are **relative**; the MAUI app prefixes them with the API base URL, because the Ngrok URL changes.
+
+## API flow for the app
+
+1. `POST /api/plates/scan` (multipart, field `photo`) → `PlateScanResultDto` with the recognized plate and the matching vehicle, if any.
+2. `POST /api/inspections` (JSON `InspectionForCreationDto`) → creates the inspection.
+3. `POST /api/inspections/{id}/photos` (multipart, field `photos`, 1 to 8 photos, .jpg/.png, max 10 MB each) → stores the photos, runs damage detection, writes `AiSummary` and returns the `InspectionDetailDto`.
+4. Read endpoints: `GET /api/vehicles?searchQuery=`, `GET /api/vehicles/{id}`, `GET /api/vehicles/{id}/inspections`, `GET /api/inspections/{id}`.
 
 ## Working agreement
 

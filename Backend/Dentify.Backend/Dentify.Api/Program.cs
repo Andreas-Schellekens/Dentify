@@ -1,6 +1,8 @@
+using Dentify.Api.Strategies;
 using Dentify.Infrastructure.DbContexts;
 using Dentify.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,15 @@ builder.Services.AddAutoMapper(
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IInspectionRepository, InspectionRepository>();
 builder.Services.AddScoped<IDamageRepository, DamageRepository>();
+builder.Services.AddScoped<IInspectionPhotoRepository, InspectionPhotoRepository>();
+
+// Azure strategies: only fake implementations exist so far. Once the real ones are added,
+// register the fakes in Development and the real ones otherwise (see CLAUDE.md).
+builder.Services.AddTransient<IPlateReaderService, FakePlateReaderService>();
+builder.Services.AddTransient<IDamageDetectionService, FakeDamageDetectionService>();
+builder.Services.AddTransient<IReportService, FakeReportService>();
+
+builder.Services.AddSingleton<IPhotoStorageService, LocalPhotoStorageService>();
 
 var app = builder.Build();
 
@@ -37,6 +48,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Serve uploaded inspection photos at /uploads/...
+var uploadPath = Path.Combine(app.Environment.ContentRootPath, LocalPhotoStorageService.FolderName);
+Directory.CreateDirectory(uploadPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadPath),
+    RequestPath = "/" + LocalPhotoStorageService.FolderName
+});
+
 app.UseAuthorization();
 app.MapControllers();
 

@@ -129,6 +129,32 @@ namespace Dentify.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Dentify.Domain.Entities.InspectionPhoto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("InspectionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InspectionId");
+
+                    b.ToTable("InspectionPhotos");
+                });
+
             modelBuilder.Entity("Dentify.Domain.Entities.Vehicle", b =>
                 {
                     b.Property<int>("Id")
@@ -210,9 +236,22 @@ namespace Dentify.Infrastructure.Migrations
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("Dentify.Domain.Entities.InspectionPhoto", b =>
+                {
+                    b.HasOne("Dentify.Domain.Entities.Inspection", "Inspection")
+                        .WithMany("Photos")
+                        .HasForeignKey("InspectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Inspection");
+                });
+
             modelBuilder.Entity("Dentify.Domain.Entities.Inspection", b =>
                 {
                     b.Navigation("Damages");
+
+                    b.Navigation("Photos");
                 });
 
             modelBuilder.Entity("Dentify.Domain.Entities.Vehicle", b =>

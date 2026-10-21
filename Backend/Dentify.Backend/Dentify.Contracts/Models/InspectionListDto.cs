@@ -10,6 +10,10 @@ namespace Dentify.Contracts.Models
 
         public DateTime Date { get; set; }
         public string InspectorName { get; set; }
+
+        // Relative URL of the cover photo, null when no photos were uploaded yet
+        public string? PhotoUrl { get; set; }
+
         public bool DamageDetected { get; set; }
         public int DamageCount { get; set; }
     }
