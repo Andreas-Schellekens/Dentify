@@ -15,5 +15,6 @@ namespace Dentify.Contracts.Models
         public bool DamageDetected { get; set; }
         public string? AiSummary { get; set; }
         public ICollection<DamageListDto> Damages { get; set; } = new List<DamageListDto>();
+        public ICollection<InspectionPhotoListDto> Photos { get; set; } = new List<InspectionPhotoListDto>();
     }
 }

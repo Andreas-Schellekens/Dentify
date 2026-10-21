@@ -9,6 +9,7 @@ namespace Dentify.Infrastructure.DbContexts
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Inspection> Inspections { get; set; }
         public DbSet<Damage> Damages { get; set; }
+        public DbSet<InspectionPhoto> InspectionPhotos { get; set; }
 
         public DentifyContext(DbContextOptions<DentifyContext> options)
             : base(options) { }

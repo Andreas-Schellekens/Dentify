@@ -18,6 +18,7 @@ namespace Dentify.Domain.Entities
         [MaxLength(100)]
         public string InspectorName { get; set; }
 
+        // Cover photo (the first uploaded photo), shown in lists
         [MaxLength(500)]
         public string? PhotoUrl { get; set; }
 
@@ -33,6 +34,8 @@ namespace Dentify.Domain.Entities
         public Vehicle Vehicle { get; set; }
 
         public ICollection<Damage> Damages { get; set; } = new List<Damage>();
+
+        public ICollection<InspectionPhoto> Photos { get; set; } = new List<InspectionPhoto>();
 
         public Inspection(InspectionType type, DateTime date, string inspectorName)
         {
