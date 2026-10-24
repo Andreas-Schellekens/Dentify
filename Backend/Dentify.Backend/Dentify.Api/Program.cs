@@ -30,9 +30,15 @@ builder.Services.AddScoped<IInspectionRepository, InspectionRepository>();
 builder.Services.AddScoped<IDamageRepository, DamageRepository>();
 builder.Services.AddScoped<IInspectionPhotoRepository, InspectionPhotoRepository>();
 
-// Azure strategies: only fake implementations exist so far. Once the real ones are added,
-// register the fakes in Development and the real ones otherwise (see CLAUDE.md).
-builder.Services.AddTransient<IPlateReaderService, FakePlateReaderService>();
+// Azure strategies: a real implementation is only used when "Azure:UseFakeServices" is false
+// and that service is configured (user-secrets). Otherwise the fake is used, so the app works without Azure.
+var useFakeServices = builder.Configuration.GetValue("Azure:UseFakeServices", builder.Environment.IsDevelopment());
+
+if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:Vision:Endpoint"]))
+    builder.Services.AddSingleton<IPlateReaderService, AzurePlateReaderService>();
+else
+    builder.Services.AddTransient<IPlateReaderService, FakePlateReaderService>();
+
 builder.Services.AddTransient<IDamageDetectionService, FakeDamageDetectionService>();
 builder.Services.AddTransient<IReportService, FakeReportService>();
 

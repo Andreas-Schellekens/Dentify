@@ -80,6 +80,9 @@ The full reference is in @dotnet-api-naslag.md. Follow it. Key points:
   - `IDamageDetectionService` (Custom Vision prediction)
   - `IReportService` (Azure OpenAI summary)
 - Every interface has a real implementation and a **fake** implementation that returns fixed data. Register one or the other in `Program.cs` (fake in Development by default) so the app can be built without Azure.
+- Switch: `Azure:UseFakeServices` is `true` in `appsettings.Development.json`. To use the real services locally, set it to `false` in user-secrets. A real implementation is only registered when its own settings are present, otherwise that service falls back to its fake.
+- Configuration keys (user-secrets): `Azure:Vision:Endpoint`, `Azure:Vision:Key`, `Azure:CustomVision:PredictionEndpoint`, `Azure:CustomVision:PredictionKey`, `Azure:CustomVision:ProjectId`, `Azure:CustomVision:PublishedName`, `Azure:OpenAI:Endpoint`, `Azure:OpenAI:Key`, `Azure:OpenAI:DeploymentName`.
+- Implemented: `AzurePlateReaderService` (package `Azure.AI.Vision.ImageAnalysis`, OCR `VisualFeatures.Read`, filters Belgian plate formats). Custom Vision and OpenAI still use their fakes.
 - Endpoints, keys and the published Custom Vision iteration name come from configuration. **Never hardcode or commit secrets.** Use `dotnet user-secrets` for the API and keep `appsettings*.json` free of real keys (the AutoMapper license key is the only exception and is already needed locally).
 - Check the current Azure SDK docs before choosing package names or API shapes. Do not guess.
 
