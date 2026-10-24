@@ -1,6 +1,8 @@
 """
-Uploads a balanced selection of the CarDD dataset (COCO format) to an Azure Custom Vision
-object detection project, including the bounding boxes, so no manual labeling is needed.
+Uploads a balanced selection of the CarDD dataset (COCO format) to an Azure Custom Vision project,
+so no manual labeling is needed:
+  --mode detection       object detection project, uploads the bounding boxes (default)
+  --mode classification  multilabel classification project, tags each image with its damage types
 
 Uses only the Python standard library and the Custom Vision Training REST API v3.3
 (checked against the official OpenAPI spec in Azure/azure-rest-api-specs).
@@ -13,6 +15,7 @@ Configuration comes from environment variables, never from this file:
 Examples:
     python upload_cardd.py --cardd-dir "C:/Users/me/Downloads/CarDD/CarDD_release/CarDD_COCO" --dry-run
     python upload_cardd.py --cardd-dir "..." --per-tag 60
+    python upload_cardd.py --cardd-dir "..." --per-tag 100 --mode classification
     python upload_cardd.py --cardd-dir "..." --export-test 15 --test-dir "C:/Users/me/Downloads/CarDD/quick-test"
 """
 
@@ -139,6 +142,14 @@ class TrainingClient:
     def get_project(self):
         return self._request("GET", "")
 
+    def get_domain(self, domain_id):
+        # Domains live outside the project path: {endpoint}/customvision/v3.3/training/domains/{id}
+        url = f"{self.base.split('/projects/')[0]}/domains/{domain_id}"
+        request = urllib.request.Request(url, method="GET")
+        request.add_header("Training-Key", self.key)
+        with urllib.request.urlopen(request, timeout=60) as response:
+            return json.loads(response.read().decode("utf-8"))
+
     def get_tags(self):
         return self._request("GET", "/tags")
 
@@ -164,6 +175,7 @@ def main():
     parser.add_argument("--per-tag", type=int, default=60, help="Minimum number of images per tag (default 60)")
     parser.add_argument("--splits", nargs="+", default=["train2017", "val2017"])
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--mode", choices=["detection", "classification"], default="detection")
     parser.add_argument("--dry-run", action="store_true", help="Only show the selection, upload nothing")
     parser.add_argument("--export-test", type=int, default=0, help="Copy N unseen test images for Quick Test")
     parser.add_argument("--test-dir", help="Target folder for --export-test")
@@ -198,8 +210,13 @@ def main():
     except KeyError as missing:
         sys.exit(f"Environment variable {missing} is not set")
 
+    # The domain type ("ObjectDetection" or "Classification") tells the project type reliably
     project = client.get_project()
-    print(f"Project: {project['name']}")
+    domain = client.get_domain(project["settings"]["domainId"])
+    print(f"Project: {project['name']} (domain {domain['name']}, type {domain['type']})")
+    expected_type = "Classification" if args.mode == "classification" else "ObjectDetection"
+    if domain["type"] != expected_type:
+        sys.exit(f"--mode {args.mode} needs a {expected_type} project, this is a {domain['type']} project. Nothing uploaded.")
 
     tag_ids = {tag["name"]: tag["id"] for tag in client.get_tags()}
     for tag in sorted(set(TAG_MAP.values())):
@@ -214,9 +231,13 @@ def main():
         for image in selected[start:start + batch_size]:
             with open(image["path"], "rb") as f:
                 contents = base64.b64encode(f.read()).decode("ascii")
-            regions = [to_region(tag_ids[tag], bbox, image["width"], image["height"])
-                       for tag, bbox in image["boxes"]]
-            entries.append({"name": image["name"], "contents": contents, "regions": regions})
+            if args.mode == "classification":
+                image_tag_ids = sorted({tag_ids[tag] for tag, _ in image["boxes"]})
+                entries.append({"name": image["name"], "contents": contents, "tagIds": image_tag_ids})
+            else:
+                regions = [to_region(tag_ids[tag], bbox, image["width"], image["height"])
+                           for tag, bbox in image["boxes"]]
+                entries.append({"name": image["name"], "contents": contents, "regions": regions})
 
         summary = client.create_images_from_files(entries)
         for result in summary["images"]:

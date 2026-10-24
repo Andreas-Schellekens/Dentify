@@ -39,7 +39,11 @@ if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:
 else
     builder.Services.AddTransient<IPlateReaderService, FakePlateReaderService>();
 
-builder.Services.AddTransient<IDamageDetectionService, FakeDamageDetectionService>();
+if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:CustomVision:PredictionEndpoint"]))
+    builder.Services.AddHttpClient<IDamageDetectionService, CustomVisionDamageDetectionService>();
+else
+    builder.Services.AddTransient<IDamageDetectionService, FakeDamageDetectionService>();
+
 builder.Services.AddTransient<IReportService, FakeReportService>();
 
 builder.Services.AddSingleton<IPhotoStorageService, LocalPhotoStorageService>();
