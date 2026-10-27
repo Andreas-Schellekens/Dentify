@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:Dentify.Maui.ViewModels"
+             xmlns:models="clr-namespace:Dentify.Contracts.Models;assembly=Dentify.Contracts"
+             x:Class="Dentify.Maui.Views.VehicleListPage"
+             x:DataType="viewModels:VehicleListViewModel"
+             Shell.NavBarIsVisible="False"
+             Title="Vehicles">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*"
+          Padding="20,16,20,0"
+          RowSpacing="12">
+
+        <!-- Header -->
+        <Grid ColumnDefinitions="*,Auto">
+            <VerticalStackLayout Spacing="0">
+                <Label Text="DENTIFY" Style="{StaticResource Caption}" />
+                <Label Text="Vehicles"
+                       Style="{StaticResource PageTitle}"
+                       SemanticProperties.HeadingLevel="Level1" />
+            </VerticalStackLayout>
+            <Border Grid.Column="1"
+                    Style="{StaticResource Card}"
+                    Padding="0"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    StrokeShape="RoundRectangle 12"
+                    VerticalOptions="Center">
+                <ImageButton Source="ic_settings.png"
+                             Command="{Binding OpenSettingsCommand}"
+                             Padding="10"
+                             BackgroundColor="Transparent"
+                             SemanticProperties.Description="Settings" />
+            </Border>
+        </Grid>
+
+        <!-- Search -->
+        <Border Grid.Row="1"
+                Style="{StaticResource Card}"
+                Padding="4,0"
+                StrokeShape="RoundRectangle 14">
+            <SearchBar Text="{Binding SearchQuery}"
+                       Placeholder="Search by plate, brand or model"
+                       SemanticProperties.Description="Search vehicles" />
+        </Border>
+
+        <!-- Error state -->
+        <Border Grid.Row="2"
+                Style="{StaticResource ErrorCard}"
+                IsVisible="{Binding HasError}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <Label Text="{Binding ErrorMessage}"
+                       Style="{StaticResource ErrorText}"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="Retry"
+                        Command="{Binding RefreshCommand}"
+                        HeightRequest="40"
+                        Padding="16,0"
+                        VerticalOptions="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Vehicle list -->
+        <RefreshView Grid.Row="3"
+                     Command="{Binding RefreshCommand}"
+                     IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding Vehicles}"
+                            SelectionMode="None">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.Footer>
+                    <BoxView HeightRequest="20" Color="Transparent" />
+                </CollectionView.Footer>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:VehicleListDto">
+                        <Border Style="{StaticResource Card}"
+                                SemanticProperties.Hint="Opens the vehicle and its inspections">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding SelectVehicleCommand, Source={RelativeSource AncestorType={x:Type viewModels:VehicleListViewModel}}, x:DataType=viewModels:VehicleListViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto"
+                                  RowDefinitions="Auto,Auto"
+                                  RowSpacing="8"
+                                  ColumnSpacing="12">
+                                <Label Style="{StaticResource CardTitle}"
+                                       LineBreakMode="TailTruncation">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0} {1}">
+                                            <Binding Path="Brand" />
+                                            <Binding Path="Model" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                                <Border Grid.Row="1"
+                                        Style="{StaticResource Badge}"
+                                        HorizontalOptions="Start">
+                                    <Label Text="{Binding Type}" Style="{StaticResource BadgeText}" />
+                                </Border>
+                                <Border Grid.Column="1"
+                                        Grid.RowSpan="2"
+                                        Style="{StaticResource PlateChip}"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding LicensePlate}" Style="{StaticResource PlateText}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- First load -->
+        <VerticalStackLayout Grid.Row="3"
+                             IsVisible="{Binding ShowFirstLoad}"
+                             VerticalOptions="Center"
+                             Spacing="12">
+            <ActivityIndicator IsRunning="{Binding ShowFirstLoad}" />
+            <Label Text="Loading vehicles…"
+                   Style="{StaticResource MutedText}"
+                   HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+
+        <!-- Empty state -->
+        <VerticalStackLayout Grid.Row="3"
+                             IsVisible="{Binding ShowEmptyState}"
+                             InputTransparent="True"
+                             VerticalOptions="Center"
+                             Spacing="6"
+                             Padding="24,0">
+            <Label Text="{Binding EmptyStateTitle}"
+                   Style="{StaticResource SectionTitle}"
+                   HorizontalTextAlignment="Center" />
+            <Label Text="Check the spelling, or pull down to refresh the list."
+                   Style="{StaticResource MutedText}"
+                   HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>
