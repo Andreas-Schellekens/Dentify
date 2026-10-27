@@ -9,7 +9,8 @@ using Dentify.Maui.Views;
 
 namespace Dentify.Maui.ViewModels
 {
-    public partial class VehicleListViewModel : BaseViewModel, IRecipient<ApiSettingsChangedMessage>
+    public partial class VehicleListViewModel : BaseViewModel,
+        IRecipient<ApiSettingsChangedMessage>, IRecipient<PlateScannedMessage>
     {
         private static readonly TimeSpan SearchDelay = TimeSpan.FromMilliseconds(350);
 
@@ -47,6 +48,7 @@ namespace Dentify.Maui.ViewModels
             Vehicles = new ObservableCollection<VehicleListDto>();
 
             WeakReferenceMessenger.Default.Register<ApiSettingsChangedMessage>(this);
+            WeakReferenceMessenger.Default.Register<PlateScannedMessage>(this);
 
             // The page has no code-behind to trigger a load, so the first load starts here
             _ = LoadVehiclesAsync();
@@ -56,6 +58,19 @@ namespace Dentify.Maui.ViewModels
         {
             HasLoaded = false;
             _ = LoadVehiclesAsync();
+        }
+
+        // No vehicle matched the scanned plate: search for it, so the user can pick the right one
+        public void Receive(PlateScannedMessage message)
+        {
+            if (!string.IsNullOrWhiteSpace(message.Value.RecognizedPlate))
+                SearchQuery = message.Value.RecognizedPlate;
+        }
+
+        [RelayCommand]
+        private async Task ScanPlateAsync()
+        {
+            await _navigationService.NavigateToAsync(nameof(PlateScanPage));
         }
 
         [RelayCommand]

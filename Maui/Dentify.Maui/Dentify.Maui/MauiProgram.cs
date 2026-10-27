@@ -29,19 +29,24 @@ namespace Dentify.Maui
                 client.DefaultRequestHeaders.Add("ngrok-skip-browser-warning", "true");
             });
             builder.Services.AddSingleton<IPhotoLoaderService, PhotoLoaderService>();
+            builder.Services.AddSingleton<IPhotoService, PhotoService>();
 
-            // View models are singletons so they stay registered for messages
+            // View models that receive messages are singletons so they stay registered
             builder.Services.AddSingleton<VehicleListViewModel>();
             builder.Services.AddSingleton<VehicleDetailViewModel>();
             builder.Services.AddSingleton<SettingsViewModel>();
+            // A new scan always starts clean
+            builder.Services.AddTransient<PlateScanViewModel>();
 
             // Pages
             builder.Services.AddTransient<VehicleListPage>();
             builder.Services.AddTransient<VehicleDetailPage>();
+            builder.Services.AddTransient<PlateScanPage>();
             builder.Services.AddTransient<SettingsPage>();
 
             // Routes for pages that are pushed on top of the root page
             Routing.RegisterRoute(nameof(VehicleDetailPage), typeof(VehicleDetailPage));
+            Routing.RegisterRoute(nameof(PlateScanPage), typeof(PlateScanPage));
             Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
 
 #if DEBUG

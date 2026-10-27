@@ -34,6 +34,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Dentify uses the camera to read license plates and to photograph vehicles for damage inspections.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Dentify lets you pick existing photos of a license plate or a vehicle for an inspection.</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 </dict>

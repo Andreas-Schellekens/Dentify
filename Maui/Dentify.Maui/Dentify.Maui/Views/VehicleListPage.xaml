@@ -8,7 +8,7 @@
              Shell.NavBarIsVisible="False"
              Title="Vehicles">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*"
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto"
           Padding="20,16,20,0"
           RowSpacing="12">
 
@@ -139,6 +139,14 @@
                    Style="{StaticResource MutedText}"
                    HorizontalTextAlignment="Center" />
         </VerticalStackLayout>
+
+        <!-- Main action -->
+        <Button Grid.Row="4"
+                Text="Scan license plate"
+                Style="{StaticResource PrimaryButton}"
+                Command="{Binding ScanPlateCommand}"
+                Margin="0,4,0,16"
+                SemanticProperties.Hint="Takes a photo of a license plate to find the vehicle" />
     </Grid>
 
 </ContentPage>
