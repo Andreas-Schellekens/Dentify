@@ -136,7 +136,9 @@ Status:
 
 ## Running the API locally (new PC)
 
-From the repo root, once:
+Easiest: `powershell -ExecutionPolicy Bypass -File tools\setup-dev.ps1` (database only, fake Azure services) or add `-UseAzure` (also stores the Azure settings; asks for the keys with hidden input). The prompt for the MAUI agent is in `docs/maui-agent-prompt.md`.
+
+Manually, from the repo root, once:
 
 ```bash
 dotnet tool install --global dotnet-ef
