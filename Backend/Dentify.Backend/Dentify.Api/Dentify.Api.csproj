@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>annotations</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>98d9acea-212a-4494-aefd-5ad51bf44d30</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="Azure.AI.Vision.ImageAnalysis" Version="1.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

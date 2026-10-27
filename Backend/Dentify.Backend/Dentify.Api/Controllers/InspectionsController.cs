@@ -96,17 +96,32 @@ namespace Dentify.Api.Controllers
                     return BadRequest($"{photo.FileName}: the photo must be between 1 byte and 10 MB.");
             }
 
+            // Run damage detection on all photos first, so nothing is stored when the AI service is unavailable
+            var analyzedPhotos = new List<(byte[] ImageData, string Extension, IEnumerable<DamagePrediction> Predictions)>();
             foreach (var photo in photos)
             {
                 using var memoryStream = new MemoryStream();
                 await photo.CopyToAsync(memoryStream);
                 var imageData = memoryStream.ToArray();
 
-                var url = await _photoStorageService.SavePhotoAsync(imageData, Path.GetExtension(photo.FileName));
+                try
+                {
+                    var predictions = await _damageDetectionService.DetectDamagesAsync(imageData);
+                    analyzedPhotos.Add((imageData, Path.GetExtension(photo.FileName), predictions));
+                }
+                catch (Exception exception) when (exception is HttpRequestException or Azure.RequestFailedException)
+                {
+                    return StatusCode(StatusCodes.Status502BadGateway,
+                        $"Damage detection is not available right now: {exception.Message}");
+                }
+            }
+
+            foreach (var (imageData, extension, predictions) in analyzedPhotos)
+            {
+                var url = await _photoStorageService.SavePhotoAsync(imageData, extension);
                 await _photoRepository.AddPhotoAsync(new InspectionPhoto(url, DateTime.Now) { InspectionId = id });
                 inspection.PhotoUrl ??= url;
 
-                var predictions = await _damageDetectionService.DetectDamagesAsync(imageData);
                 foreach (var prediction in predictions)
                 {
                     var damage = _mapper.Map<Damage>(prediction);

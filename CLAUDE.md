@@ -80,6 +80,9 @@ The full reference is in @dotnet-api-naslag.md. Follow it. Key points:
   - `IDamageDetectionService` (Custom Vision prediction)
   - `IReportService` (Azure OpenAI summary)
 - Every interface has a real implementation and a **fake** implementation that returns fixed data. Register one or the other in `Program.cs` (fake in Development by default) so the app can be built without Azure.
+- Switch: `Azure:UseFakeServices` is `true` in `appsettings.Development.json`. To use the real services locally, set it to `false` in user-secrets. A real implementation is only registered when its own settings are present, otherwise that service falls back to its fake.
+- Configuration keys (user-secrets): `Azure:Vision:Endpoint`, `Azure:Vision:Key`, `Azure:CustomVision:PredictionEndpoint`, `Azure:CustomVision:PredictionKey`, `Azure:CustomVision:ProjectId`, `Azure:CustomVision:PublishedName`, `Azure:CustomVision:ProjectType` (`ObjectDetection` or `Classification`), `Azure:CustomVision:MinimumProbability` (default 0.5), `Azure:OpenAI:Endpoint`, `Azure:OpenAI:Key`, `Azure:OpenAI:DeploymentName`.
+- Implemented: `AzurePlateReaderService` (package `Azure.AI.Vision.ImageAnalysis`, OCR `VisualFeatures.Read`, filters Belgian plate formats). `CustomVisionDamageDetectionService` (Prediction REST API v3.1 via a typed `HttpClient`, no package; classification projects give location "Whole photo"). OpenAI still uses its fake.
 - Endpoints, keys and the published Custom Vision iteration name come from configuration. **Never hardcode or commit secrets.** Use `dotnet user-secrets` for the API and keep `appsettings*.json` free of real keys (the AutoMapper license key is the only exception and is already needed locally).
 - Check the current Azure SDK docs before choosing package names or API shapes. Do not guess.
 
@@ -112,7 +115,41 @@ Photos are stored by the API in `Dentify.Api/uploads/` (git-ignored) and served 
 1. `POST /api/plates/scan` (multipart, field `photo`) → `PlateScanResultDto` with the recognized plate and the matching vehicle, if any.
 2. `POST /api/inspections` (JSON `InspectionForCreationDto`) → creates the inspection.
 3. `POST /api/inspections/{id}/photos` (multipart, field `photos`, 1 to 8 photos, .jpg/.png, max 10 MB each) → stores the photos, runs damage detection, writes `AiSummary` and returns the `InspectionDetailDto`.
-4. Read endpoints: `GET /api/vehicles?searchQuery=`, `GET /api/vehicles/{id}`, `GET /api/vehicles/{id}/inspections`, `GET /api/inspections/{id}`.
+4. Read endpoints: `GET /api/vehicles?searchQuery=`, `GET /api/vehicles/{id}`, `GET /api/vehicles/{id}/inspections`, `GET /api/inspections/{id}`, `GET /api/inspections/{id}/damages`.
+5. Write endpoints besides the flow: `POST /api/vehicles`, `PUT /api/vehicles/{id}` (409 on a duplicate plate), `PATCH /api/inspections/{id}` (`InspectorName`, `AiSummary`).
+
+Details the app must handle:
+- Enums travel as strings: inspection `Type` is `"Departure"`/`"Return"`, damage `Severity` is `"Minor"`/`"Moderate"`/`"Severe"`.
+- `PlateScanResultDto.RecognizedPlate` is null when no plate was read; `Vehicle` is null (`IsMatch` false) when the plate is not in the database. Offer to pick the vehicle from the list in both cases.
+- Photo upload can take several seconds per photo (Azure calls): show a busy indicator. It returns **502** with a readable message when an Azure service fails, **400** for invalid files, **404** for an unknown inspection.
+- Damage `Location` is an area of the photo ("Top left", "Center", ...), `Confidence` is 0..1.
+
+## Team split and status
+
+- **Andreas**: backend and Azure (plate OCR, Custom Vision, Azure OpenAI report).
+- **Finn**: the MAUI app (`Maui/`). Work on a feature branch, e.g. `feature/maui-app`, and merge into `main` via a PR.
+
+Status:
+- API complete (all endpoints above, Swagger, seed data). Plate OCR and Custom Vision damage detection work against real Azure resources; the report still uses `FakeReportService` (Azure OpenAI is pending).
+- Custom Vision: object detection project `Dentify-Detection` (resource `asbigfive`, Germany West Central), published as `Iteration1`, mAP 63.5%. Strong on broken glass and flat tires, over-predicts dents, rarely finds scratches. Training in Germany West Central often hangs; see `tools/customvision/README.md`.
+- MAUI app: not started yet (template only). `CommunityToolkit.Mvvm` and the reference to `Dentify.Contracts` are already in the project.
+
+## Running the API locally (new PC)
+
+From the repo root, once:
+
+```bash
+dotnet tool install --global dotnet-ef
+dotnet ef database update --project Backend/Dentify.Backend/Dentify.Infrastructure --startup-project Backend/Dentify.Backend/Dentify.Api
+```
+
+Without any user-secrets the API runs with the **fake** Azure services, which is enough to build the whole app. To use the real ones, ask Andreas for the values (never via git) and set them, see "Azure integration" for the keys:
+
+```bash
+dotnet user-secrets set "Azure:UseFakeServices" "false" --project Backend/Dentify.Backend/Dentify.Api
+```
+
+Start: `dotnet run --project Backend/Dentify.Backend/Dentify.Api --launch-profile http` (http://localhost:5152, Swagger at `/swagger`). A phone or Android emulator reaches the API through Ngrok: `ngrok http 5152`, then put the `https://...ngrok-free.app` URL in the app configuration. Ngrok's free tier shows a browser warning page; send the header `ngrok-skip-browser-warning: true` from the `ApiService`.
 
 ## Working agreement
 
