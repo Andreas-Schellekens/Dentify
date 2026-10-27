@@ -47,6 +47,7 @@ else
 builder.Services.AddTransient<IReportService, FakeReportService>();
 
 builder.Services.AddSingleton<IPhotoStorageService, LocalPhotoStorageService>();
+builder.Services.AddSingleton<IImageResizeService, SkiaImageResizeService>();
 
 var app = builder.Build();
 

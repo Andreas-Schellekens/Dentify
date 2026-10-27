@@ -12,7 +12,8 @@ namespace Dentify.Api.Controllers
     public class InspectionsController : ControllerBase
     {
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png" };
-        private const long MaxPhotoSize = 10 * 1024 * 1024;
+        // Phone originals are often 10+ MB; they are shrunk before they are stored and sent to Azure
+        private const long MaxPhotoSize = 20 * 1024 * 1024;
         private const int MaxPhotosPerUpload = 8;
 
         private IInspectionRepository _inspectionRepository;
@@ -20,6 +21,7 @@ namespace Dentify.Api.Controllers
         private IDamageRepository _damageRepository;
         private IInspectionPhotoRepository _photoRepository;
         private IPhotoStorageService _photoStorageService;
+        private IImageResizeService _imageResizeService;
         private IDamageDetectionService _damageDetectionService;
         private IReportService _reportService;
         private IMapper _mapper;
@@ -27,6 +29,7 @@ namespace Dentify.Api.Controllers
         public InspectionsController(IInspectionRepository inspectionRepository,
             IVehicleRepository vehicleRepository, IDamageRepository damageRepository,
             IInspectionPhotoRepository photoRepository, IPhotoStorageService photoStorageService,
+            IImageResizeService imageResizeService,
             IDamageDetectionService damageDetectionService, IReportService reportService, IMapper mapper)
         {
             _inspectionRepository = inspectionRepository;
@@ -34,6 +37,7 @@ namespace Dentify.Api.Controllers
             _damageRepository = damageRepository;
             _photoRepository = photoRepository;
             _photoStorageService = photoStorageService;
+            _imageResizeService = imageResizeService;
             _damageDetectionService = damageDetectionService;
             _reportService = reportService;
             _mapper = mapper;
@@ -93,7 +97,7 @@ namespace Dentify.Api.Controllers
                 if (!AllowedExtensions.Contains(Path.GetExtension(photo.FileName).ToLowerInvariant()))
                     return BadRequest($"{photo.FileName}: only .jpg, .jpeg and .png photos are allowed.");
                 if (photo.Length == 0 || photo.Length > MaxPhotoSize)
-                    return BadRequest($"{photo.FileName}: the photo must be between 1 byte and 10 MB.");
+                    return BadRequest($"{photo.FileName}: the photo must be between 1 byte and 20 MB.");
             }
 
             // Run damage detection on all photos first, so nothing is stored when the AI service is unavailable
@@ -102,12 +106,21 @@ namespace Dentify.Api.Controllers
             {
                 using var memoryStream = new MemoryStream();
                 await photo.CopyToAsync(memoryStream);
-                var imageData = memoryStream.ToArray();
+
+                byte[] imageData;
+                try
+                {
+                    imageData = _imageResizeService.PrepareForAnalysis(memoryStream.ToArray());
+                }
+                catch (InvalidDataException)
+                {
+                    return BadRequest($"{photo.FileName}: the photo could not be read as an image.");
+                }
 
                 try
                 {
                     var predictions = await _damageDetectionService.DetectDamagesAsync(imageData);
-                    analyzedPhotos.Add((imageData, Path.GetExtension(photo.FileName), predictions));
+                    analyzedPhotos.Add((imageData, ".jpg", predictions));
                 }
                 catch (Exception exception) when (exception is HttpRequestException or Azure.RequestFailedException)
                 {

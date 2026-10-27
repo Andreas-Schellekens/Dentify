@@ -114,7 +114,7 @@ Photos are stored by the API in `Dentify.Api/uploads/` (git-ignored) and served 
 
 1. `POST /api/plates/scan` (multipart, field `photo`) → `PlateScanResultDto` with the recognized plate and the matching vehicle, if any.
 2. `POST /api/inspections` (JSON `InspectionForCreationDto`) → creates the inspection.
-3. `POST /api/inspections/{id}/photos` (multipart, field `photos`, 1 to 8 photos, .jpg/.png, max 10 MB each) → stores the photos, runs damage detection, writes `AiSummary` and returns the `InspectionDetailDto`.
+3. `POST /api/inspections/{id}/photos` (multipart, field `photos`, 1 to 8 photos, .jpg/.png, max 20 MB each) → stores the photos, runs damage detection, writes `AiSummary` and returns the `InspectionDetailDto`.
 4. Read endpoints: `GET /api/vehicles?searchQuery=`, `GET /api/vehicles/{id}`, `GET /api/vehicles/{id}/inspections`, `GET /api/inspections/{id}`, `GET /api/inspections/{id}/damages`.
 5. Write endpoints besides the flow: `POST /api/vehicles`, `PUT /api/vehicles/{id}` (409 on a duplicate plate), `PATCH /api/inspections/{id}` (`InspectorName`, `AiSummary`).
 
@@ -122,6 +122,7 @@ Details the app must handle:
 - Enums travel as strings: inspection `Type` is `"Departure"`/`"Return"`, damage `Severity` is `"Minor"`/`"Moderate"`/`"Severe"`.
 - `PlateScanResultDto.RecognizedPlate` is null when no plate was read; `Vehicle` is null (`IsMatch` false) when the plate is not in the database. Offer to pick the vehicle from the list in both cases.
 - Photo upload can take several seconds per photo (Azure calls): show a busy indicator. It returns **502** with a readable message when an Azure service fails, **400** for invalid files, **404** for an unknown inspection.
+- The API shrinks every photo to at most 2048 px (JPEG, EXIF rotation applied) before storing it and calling Azure (`SkiaImageResizeService`, package `SkiaSharp`). Still resize in the app before uploading (longest side about 2048 px): phone originals are 10+ MB and uploading them over Ngrok is slow. Check the current `MediaPicker` docs for built-in size options before writing resize code.
 - Damage `Location` is an area of the photo ("Top left", "Center", ...), `Confidence` is 0..1.
 
 ## Team split and status

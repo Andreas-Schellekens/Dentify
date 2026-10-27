@@ -11,17 +11,20 @@ namespace Dentify.Api.Controllers
     public class PlatesController : ControllerBase
     {
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png" };
-        private const long MaxPhotoSize = 10 * 1024 * 1024;
+        // Phone originals are often 10+ MB; they are shrunk before they go to Azure
+        private const long MaxPhotoSize = 20 * 1024 * 1024;
 
         private IVehicleRepository _vehicleRepository;
         private IPlateReaderService _plateReaderService;
+        private IImageResizeService _imageResizeService;
         private IMapper _mapper;
 
         public PlatesController(IVehicleRepository vehicleRepository,
-            IPlateReaderService plateReaderService, IMapper mapper)
+            IPlateReaderService plateReaderService, IImageResizeService imageResizeService, IMapper mapper)
         {
             _vehicleRepository = vehicleRepository;
             _plateReaderService = plateReaderService;
+            _imageResizeService = imageResizeService;
             _mapper = mapper;
         }
 
@@ -34,14 +37,24 @@ namespace Dentify.Api.Controllers
             if (!AllowedExtensions.Contains(extension))
                 return BadRequest("Only .jpg, .jpeg and .png photos are allowed.");
             if (photo.Length == 0 || photo.Length > MaxPhotoSize)
-                return BadRequest("The photo must be between 1 byte and 10 MB.");
+                return BadRequest("The photo must be between 1 byte and 20 MB.");
 
             using var memoryStream = new MemoryStream();
             await photo.CopyToAsync(memoryStream);
 
+            byte[] imageData;
+            try
+            {
+                imageData = _imageResizeService.PrepareForAnalysis(memoryStream.ToArray());
+            }
+            catch (InvalidDataException)
+            {
+                return BadRequest("The photo could not be read as an image.");
+            }
+
             var result = new PlateScanResultDto
             {
-                RecognizedPlate = await _plateReaderService.ReadPlateAsync(memoryStream.ToArray())
+                RecognizedPlate = await _plateReaderService.ReadPlateAsync(imageData)
             };
 
             if (!string.IsNullOrWhiteSpace(result.RecognizedPlate))
