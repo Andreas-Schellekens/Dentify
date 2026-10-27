@@ -97,6 +97,15 @@ The full reference is in @dotnet-api-naslag.md. Follow it. Key points:
 - Photos with `MediaPicker.Default.CapturePhotoAsync()`; request camera permissions properly.
 - Pages: `VehicleListPage` → `VehicleDetailPage` → `NewInspectionPage` → `InspectionResultPage`.
 
+How the app is built (`Maui/Dentify.Maui/Dentify.Maui/`):
+- Pages: `VehicleListPage` (root, search + "Scan license plate"), `PlateScanPage`, `VehicleDetailPage` (inspection history + "New inspection"), `NewInspectionPage`, `InspectionResultPage`, `SettingsPage` (API URL). Routes are registered with `nameof(XPage)` in `MauiProgram.cs`, not in `AppShell.xaml.cs`.
+- Code-behind only has `InitializeComponent()` and `BindingContext = viewModel`. Because there is no `OnAppearing`, the vehicle list starts its first load in the view model constructor.
+- View models that receive messages are **singletons** and are resolved once in `MauiProgram` after `Build()`, so they listen before the first message is sent. The sender sends the message first and navigates after. `PlateScanViewModel` is transient (every scan starts clean). Pages are transient. Shared loading/error state is in `BaseViewModel` (`IsBusy`, `ErrorMessage`, `HasError`). `[ObservableProperty]` is used on **partial properties** (CommunityToolkit.Mvvm 8.4, C# 14).
+- Messages: `VehicleSelectedMessage` (list/scan → detail, detail → new inspection), `InspectionSavedMessage` (new inspection → result, and refreshes the history), `InspectionSelectedMessage` (history → result, by id), `PlateScannedMessage` (unknown plate → list search), `ApiSettingsChangedMessage` (settings → list reloads).
+- Services: `ApiService` (typed client via `AddHttpClient`, package `Microsoft.Extensions.Http`; throws `ApiException` with a message that can be shown as is), `SettingsService` (API URL and last inspector name in `Preferences`), `NavigationService`, `PhotoService` (MediaPicker; asks for the camera permission and shrinks photos on the device with `MaximumWidth/Height = 2048`, `CompressionQuality = 85`, `RotateImage`), `PhotoLoaderService` (downloads stored photos **through the ApiService**, so the Ngrok header is sent, and caches them in memory).
+- `Models/` holds app-only wrappers: `InspectionListItem` (history row + cover photo), `SelectedPhoto` (picked photo + preview), `PhotoItem` (stored photo + image).
+- Styles: colors in `Resources/Styles/Colors.xaml` (petrol brand, `Severity*` and `Success` colors, `Plate*` for the Belgian plate chip), named styles at the end of `Styles.xaml` (`Card`, `ErrorCard`, `Badge`, `PlateChip`, `PageTitle`, `PrimaryButton`, ...). Severity colors are applied with `DataTrigger`s on the `"Minor"/"Moderate"/"Severe"` strings.
+
 ## Domain model
 
 | Entity | Fields |
@@ -133,7 +142,8 @@ Details the app must handle:
 Status:
 - API complete (all endpoints above, Swagger, seed data). Plate OCR and Custom Vision damage detection work against real Azure resources; the report still uses `FakeReportService` (Azure OpenAI is pending).
 - Custom Vision: object detection project `Dentify-Detection` (resource `asbigfive`, Germany West Central), published as `Iteration1`, mAP 63.5%. Strong on broken glass and flat tires, over-predicts dents, rarely finds scratches. Training in Germany West Central often hangs; see `tools/customvision/README.md`.
-- MAUI app: not started yet (template only). `CommunityToolkit.Mvvm` and the reference to `Dentify.Contracts` are already in the project.
+- MAUI app: all pages and the full flow (plate scan → new inspection → upload → result) are built on `feature/maui-app` and build for Windows without warnings. Not yet tested against a running API or on Android/iOS devices.
+- Open: the app id is still the template `com.companyname.dentify.maui` (decide on a real one before publishing).
 
 ## Running the API locally (new PC)
 
@@ -153,6 +163,15 @@ dotnet user-secrets set "Azure:UseFakeServices" "false" --project Backend/Dentif
 ```
 
 Start: `dotnet run --project Backend/Dentify.Backend/Dentify.Api --launch-profile http` (http://localhost:5152, Swagger at `/swagger`). A phone or Android emulator reaches the API through Ngrok: `ngrok http 5152`, then put the `https://...ngrok-free.app` URL in the app configuration. Ngrok's free tier shows a browser warning page; send the header `ngrok-skip-browser-warning: true` from the `ApiService`.
+
+The API needs SQL Server **LocalDB** (comes with Visual Studio, or install "SQL Server Express LocalDB"; needs admin rights).
+
+## Running the app
+
+- In Visual Studio: open `Maui/Dentify.Maui/Dentify.Maui.slnx` and pick Windows Machine, an Android emulator or a device.
+- CLI (Windows target): `dotnet build Maui/Dentify.Maui/Dentify.Maui/Dentify.Maui.csproj -f net10.0-windows10.0.19041.0`. Needs the .NET 10 SDK and `dotnet workload install maui`.
+- API URL: set it in the app on the **Settings** page (sliders icon on the vehicle list) and tap "Test connection". It is stored on the device, so a new Ngrok URL needs no rebuild. Default: `http://localhost:5152` (Windows), `http://10.0.2.2:5152` (Android emulator; plain http is only allowed to these two hosts, see `Platforms/Android/Resources/xml/network_security_config.xml`).
+- With the fake Azure services, every plate scan returns `1-ABC-123` and every photo gets one minor scratch.
 
 ## Working agreement
 
