@@ -5,7 +5,7 @@
              xmlns:models="clr-namespace:Dentify.Contracts.Models;assembly=Dentify.Contracts"
              x:Class="Dentify.Maui.Views.VehicleListPage"
              x:DataType="viewModels:VehicleListViewModel"
-             Shell.NavBarIsVisible="False"
+             Shell.NavBarIsVisible="{OnPlatform Default=False, WinUI=True}"
              Title="Vehicles">
 
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto"
