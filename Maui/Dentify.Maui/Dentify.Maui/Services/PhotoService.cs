@@ -56,13 +56,21 @@ namespace Dentify.Maui.Services
             }
         }
 
-        private static MediaPickerOptions CreateOptions(string title) => new()
+        private static MediaPickerOptions CreateOptions(string title)
         {
-            Title = title,
-            MaximumWidth = MaximumPhotoSize,
-            MaximumHeight = MaximumPhotoSize,
-            CompressionQuality = JpegQuality,
-            RotateImage = true
-        };
+            // On Windows the resize drops the EXIF rotation without rotating the pixels, so phone photos
+            // arrive sideways. Send the original there: the upload is local and the API rotates and shrinks it.
+            if (DeviceInfo.Platform == DevicePlatform.WinUI)
+                return new MediaPickerOptions { Title = title };
+
+            return new MediaPickerOptions
+            {
+                Title = title,
+                MaximumWidth = MaximumPhotoSize,
+                MaximumHeight = MaximumPhotoSize,
+                CompressionQuality = JpegQuality,
+                RotateImage = true
+            };
+        }
     }
 }
