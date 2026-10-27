@@ -76,13 +76,17 @@
                         </Label.Text>
                     </Label>
                     <Label Text="{Binding Result.Vehicle.Type}" Style="{StaticResource MutedText}" />
-                    <Button Text="Open vehicle"
+                    <Button Text="Start inspection"
                             Style="{StaticResource PrimaryButton}"
-                            Command="{Binding OpenVehicleCommand}"
+                            Command="{Binding StartInspectionCommand}"
                             Margin="0,6,0,0" />
-                    <Button Text="Scan again"
+                    <Button Text="Open vehicle"
                             Style="{StaticResource SecondaryButton}"
-                            Command="{Binding ScanAgainCommand}" />
+                            Command="{Binding OpenVehicleCommand}" />
+                    <Button Text="Scan again"
+                            Command="{Binding ScanAgainCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light={StaticResource MutedLight}, Dark={StaticResource MutedDark}}" />
                 </VerticalStackLayout>
             </Border>
 

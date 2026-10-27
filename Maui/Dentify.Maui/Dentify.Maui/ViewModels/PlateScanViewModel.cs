@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Dentify.Contracts.Models;
 using Dentify.Maui.Messages;
+using Dentify.Maui.Models;
 using Dentify.Maui.Services;
 using Dentify.Maui.Views;
 
@@ -73,6 +74,16 @@ namespace Dentify.Maui.ViewModels
         }
 
         [RelayCommand]
+        private async Task StartInspectionAsync()
+        {
+            if (Result?.Vehicle == null) return;
+
+            WeakReferenceMessenger.Default.Send(new VehicleSelectedMessage(Result.Vehicle));
+            // Vehicle detail goes under the new inspection, so after saving back leads to the vehicle
+            await _navigationService.NavigateToAsync($"../{nameof(VehicleDetailPage)}/{nameof(NewInspectionPage)}");
+        }
+
+        [RelayCommand]
         private async Task ChooseFromListAsync()
         {
             if (Result != null)
@@ -103,7 +114,7 @@ namespace Dentify.Maui.ViewModels
             IsBusy = true;
             try
             {
-                Photo = await CreatePreviewAsync(photo);
+                Photo = (await SelectedPhoto.CreateAsync(photo)).Preview;
                 Result = await _apiService.ScanPlateAsync(photo);
             }
             catch (ApiException exception)
@@ -115,15 +126,6 @@ namespace Dentify.Maui.ViewModels
             {
                 IsBusy = false;
             }
-        }
-
-        private static async Task<ImageSource> CreatePreviewAsync(FileResult photo)
-        {
-            await using var stream = await photo.OpenReadAsync();
-            using var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream);
-            var imageData = memoryStream.ToArray();
-            return ImageSource.FromStream(() => new MemoryStream(imageData));
         }
     }
 }

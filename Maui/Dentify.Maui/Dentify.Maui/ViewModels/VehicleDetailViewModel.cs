@@ -6,13 +6,16 @@ using Dentify.Contracts.Models;
 using Dentify.Maui.Messages;
 using Dentify.Maui.Models;
 using Dentify.Maui.Services;
+using Dentify.Maui.Views;
 
 namespace Dentify.Maui.ViewModels
 {
-    public partial class VehicleDetailViewModel : BaseViewModel, IRecipient<VehicleSelectedMessage>
+    public partial class VehicleDetailViewModel : BaseViewModel,
+        IRecipient<VehicleSelectedMessage>, IRecipient<InspectionSavedMessage>
     {
         private IApiService _apiService;
         private IPhotoLoaderService _photoLoaderService;
+        private INavigationService _navigationService;
         private int _loadVersion;
 
         [ObservableProperty]
@@ -38,17 +41,27 @@ namespace Dentify.Maui.ViewModels
             ? "Never inspected"
             : $"Last on {Inspections[0].Inspection.Date:dd MMM yyyy}";
 
-        public VehicleDetailViewModel(IApiService apiService, IPhotoLoaderService photoLoaderService)
+        public VehicleDetailViewModel(IApiService apiService, IPhotoLoaderService photoLoaderService,
+            INavigationService navigationService)
         {
             _apiService = apiService;
             _photoLoaderService = photoLoaderService;
+            _navigationService = navigationService;
             Inspections = new ObservableCollection<InspectionListItem>();
 
             WeakReferenceMessenger.Default.Register<VehicleSelectedMessage>(this);
+            WeakReferenceMessenger.Default.Register<InspectionSavedMessage>(this);
         }
 
         public void Receive(VehicleSelectedMessage message)
         {
+            // Same vehicle (e.g. this page starts a new inspection): refresh quietly, keep the list on screen
+            if (Vehicle?.Id == message.Value.Id && HasLoaded)
+            {
+                _ = LoadInspectionsAsync();
+                return;
+            }
+
             // Show the header right away and clear the previous vehicle before loading
             Vehicle = message.Value;
             Inspections = new ObservableCollection<InspectionListItem>();
@@ -57,11 +70,36 @@ namespace Dentify.Maui.ViewModels
             _ = LoadInspectionsAsync();
         }
 
+        // A new inspection of this vehicle was saved, so the history is out of date
+        public void Receive(InspectionSavedMessage message)
+        {
+            if (Vehicle?.Id == message.Value.VehicleId)
+                _ = LoadInspectionsAsync();
+        }
+
         [RelayCommand]
         private async Task RefreshAsync()
         {
             IsRefreshing = true;
             await LoadInspectionsAsync();
+        }
+
+        [RelayCommand]
+        private async Task StartInspectionAsync()
+        {
+            if (Vehicle == null) return;
+
+            WeakReferenceMessenger.Default.Send(new VehicleSelectedMessage(Vehicle));
+            await _navigationService.NavigateToAsync(nameof(NewInspectionPage));
+        }
+
+        [RelayCommand]
+        private async Task OpenInspectionAsync(InspectionListItem item)
+        {
+            if (item == null) return;
+
+            WeakReferenceMessenger.Default.Send(new InspectionSelectedMessage(item.Inspection.Id));
+            await _navigationService.NavigateToAsync(nameof(InspectionResultPage));
         }
 
         private async Task LoadInspectionsAsync()

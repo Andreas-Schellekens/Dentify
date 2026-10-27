@@ -4,6 +4,7 @@ namespace Dentify.Maui.Services
     public class SettingsService : ISettingsService
     {
         private const string ApiBaseUrlKey = "ApiBaseUrl";
+        private const string InspectorNameKey = "InspectorName";
 
         // The Android emulator reaches the host PC at 10.0.2.2, other platforms use localhost
         public string DefaultApiBaseUrl =>
@@ -15,6 +16,12 @@ namespace Dentify.Maui.Services
         {
             get => Preferences.Default.Get(ApiBaseUrlKey, DefaultApiBaseUrl);
             set => Preferences.Default.Set(ApiBaseUrlKey, value.Trim().TrimEnd('/'));
+        }
+
+        public string InspectorName
+        {
+            get => Preferences.Default.Get(InspectorNameKey, string.Empty);
+            set => Preferences.Default.Set(InspectorNameKey, value.Trim());
         }
     }
 }

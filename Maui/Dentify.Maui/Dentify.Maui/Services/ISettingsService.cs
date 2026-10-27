@@ -6,5 +6,8 @@ namespace Dentify.Maui.Services
         string ApiBaseUrl { get; set; }
 
         string DefaultApiBaseUrl { get; }
+
+        // Name of the last inspector, so it does not have to be typed for every inspection
+        string InspectorName { get; set; }
     }
 }
