@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:Dentify.Maui.ViewModels"
+             xmlns:models="clr-namespace:Dentify.Maui.Models"
+             x:Class="Dentify.Maui.Views.NewInspectionPage"
+             x:DataType="viewModels:NewInspectionViewModel"
+             Title="New inspection">
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView>
+            <VerticalStackLayout Padding="20,16,20,8" Spacing="18">
+
+                <!-- Vehicle -->
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                            <Label Text="VEHICLE" Style="{StaticResource Caption}" />
+                            <Label Style="{StaticResource CardTitle}" LineBreakMode="TailTruncation">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{}{0} {1}">
+                                        <Binding Path="Vehicle.Brand" />
+                                        <Binding Path="Vehicle.Model" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Style="{StaticResource PlateChip}" VerticalOptions="Center">
+                            <Label Text="{Binding Vehicle.LicensePlate}" Style="{StaticResource PlateText}" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Type -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Type" Style="{StaticResource SectionTitle}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="Departure"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding SelectDepartureCommand}"
+                                IsEnabled="{Binding IsNotBusy}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsDeparture}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                        <Button Grid.Column="1"
+                                Text="Return"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding SelectReturnCommand}"
+                                IsEnabled="{Binding IsNotBusy}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsReturn}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                    </Grid>
+                    <Label Text="{Binding TypeHint}" Style="{StaticResource MutedText}" />
+                </VerticalStackLayout>
+
+                <!-- Inspector -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Inspector" Style="{StaticResource SectionTitle}" />
+                    <Border Style="{StaticResource Card}" Padding="12,2" StrokeShape="RoundRectangle 12">
+                        <Entry Text="{Binding InspectorName}"
+                               Style="{StaticResource FormEntry}"
+                               Placeholder="Your name"
+                               MaxLength="100"
+                               IsEnabled="{Binding IsNotBusy}"
+                               SemanticProperties.Description="Name of the inspector" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Photos -->
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Photos" Style="{StaticResource SectionTitle}" />
+                        <Label Grid.Column="1"
+                               Text="{Binding PhotoCountText}"
+                               Style="{StaticResource MutedText}"
+                               VerticalOptions="Center" />
+                    </Grid>
+
+                    <Border Style="{StaticResource Card}"
+                            Padding="18"
+                            StrokeDashArray="4,3"
+                            IsVisible="{Binding HasPhotos, Converter={StaticResource InverseBoolConverter}}">
+                        <Label Text="Photograph the vehicle from every side: front, back, both sides and any spot that looks damaged. Up to 8 photos."
+                               Style="{StaticResource MutedText}"
+                               HorizontalTextAlignment="Center" />
+                    </Border>
+
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Photos}"
+                                Wrap="Wrap"
+                                JustifyContent="Start"
+                                IsVisible="{Binding HasPhotos}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:SelectedPhoto">
+                                <Grid WidthRequest="100" HeightRequest="100" Margin="0,0,10,10">
+                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                                        <Image Source="{Binding Preview}"
+                                               Aspect="AspectFill"
+                                               SemanticProperties.Description="Inspection photo" />
+                                    </Border>
+                                    <Border WidthRequest="28"
+                                            HeightRequest="28"
+                                            Margin="4"
+                                            HorizontalOptions="End"
+                                            VerticalOptions="Start"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 14"
+                                            BackgroundColor="#CC0F1B2D"
+                                            SemanticProperties.Description="Remove photo">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding RemovePhotoCommand, Source={RelativeSource AncestorType={x:Type viewModels:NewInspectionViewModel}}, x:DataType=viewModels:NewInspectionViewModel}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="✕"
+                                               TextColor="White"
+                                               FontSize="13"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding CanAddPhotos}">
+                        <Button Text="Take photo"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding TakePhotoCommand}"
+                                IsVisible="{Binding IsCaptureSupported}" />
+                        <Button Grid.Column="1"
+                                Text="From gallery"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding PickPhotosCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource ErrorCard}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Save, with progress while the API and Azure work -->
+        <VerticalStackLayout Grid.Row="1" Padding="20,8,20,16" Spacing="10">
+            <Border Style="{StaticResource Card}" Padding="14" IsVisible="{Binding IsBusy}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" WidthRequest="24" HeightRequest="24" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="{Binding ProgressText}" Style="{StaticResource BodyText}" FontFamily="OpenSansSemibold" />
+                        <Label Text="This can take a few seconds per photo." Style="{StaticResource MutedText}" FontSize="13" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+            <Button Text="Save and analyze"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding SaveCommand}"
+                    SemanticProperties.Hint="Saves the inspection and checks the photos for damage" />
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>

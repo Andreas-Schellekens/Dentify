@@ -9,6 +9,11 @@
         <!-- When App Sandbox is enabled, this value is required to open outgoing network connections. -->
         <key>com.apple.security.network.client</key>
         <true/>
+        <!-- Camera and picked photos for plate scans and inspections -->
+        <key>com.apple.security.device.camera</key>
+        <true/>
+        <key>com.apple.security.files.user-selected.read-only</key>
+        <true/>
     </dict>
 </plist>
 

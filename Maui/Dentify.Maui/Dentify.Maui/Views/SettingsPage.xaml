@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:Dentify.Maui.ViewModels"
+             x:Class="Dentify.Maui.Views.SettingsPage"
+             x:DataType="viewModels:SettingsViewModel"
+             Title="Settings">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="16">
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="API URL"
+                           Style="{StaticResource SectionTitle}"
+                           SemanticProperties.HeadingLevel="Level1" />
+                    <Label Style="{StaticResource MutedText}"
+                           Text="On a phone, paste the https URL from Ngrok (ngrok http 5152). Ngrok gives a new URL every time it restarts." />
+
+                    <Border Style="{StaticResource Badge}"
+                            Padding="12,6"
+                            StrokeShape="RoundRectangle 12">
+                        <Entry Text="{Binding ApiBaseUrl}"
+                               Style="{StaticResource FormEntry}"
+                               Keyboard="Url"
+                               IsSpellCheckEnabled="False"
+                               IsTextPredictionEnabled="False"
+                               Placeholder="https://abcd-1234.ngrok-free.app"
+                               SemanticProperties.Description="API URL" />
+                    </Border>
+
+                    <Label Style="{StaticResource MutedText}" FontSize="13">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Default on this device: " />
+                                <Span Text="{Binding DefaultApiBaseUrl}" FontFamily="OpenSansSemibold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource ErrorCard}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+            </Border>
+
+            <Border Style="{StaticResource Card}"
+                    BackgroundColor="{StaticResource SuccessBackground}"
+                    Stroke="{StaticResource Success}"
+                    IsVisible="{Binding HasSuccess}">
+                <Label Text="{Binding SuccessMessage}" TextColor="{StaticResource Success}" />
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+            <Button Text="Test connection"
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding TestConnectionCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Save"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Reset to default"
+                    Command="{Binding ResetToDefaultCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource MutedLight}, Dark={StaticResource MutedDark}}" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
