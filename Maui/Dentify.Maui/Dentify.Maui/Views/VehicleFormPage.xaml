@@ -6,7 +6,7 @@
              x:DataType="viewModels:VehicleFormViewModel"
              Title="{Binding PageTitle}">
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="*,Auto" MaximumWidthRequest="{StaticResource ContentMaxWidth}">
         <ScrollView>
             <VerticalStackLayout Padding="20,16,20,8" Spacing="18">
 
@@ -35,7 +35,15 @@
                                 Style="{StaticResource SecondaryButton}"
                                 Command="{Binding ScanPlateFromGalleryCommand}"
                                 IsEnabled="{Binding IsNotBusy}"
-                                SemanticProperties.Hint="Reads the plate from a photo and fills it in" />
+                                SemanticProperties.Hint="Reads the plate from a photo and fills it in">
+                            <!-- Full width when there is no camera button (Windows) -->
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsCaptureSupported}" Value="False">
+                                    <Setter Property="Grid.Column" Value="0" />
+                                    <Setter Property="Grid.ColumnSpan" Value="2" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
                     </Grid>
                     <HorizontalStackLayout Spacing="10" IsVisible="{Binding IsScanning}">
                         <ActivityIndicator IsRunning="{Binding IsScanning}" WidthRequest="20" HeightRequest="20" />
