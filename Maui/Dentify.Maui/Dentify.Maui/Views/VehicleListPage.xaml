@@ -6,9 +6,10 @@
              x:Class="Dentify.Maui.Views.VehicleListPage"
              x:DataType="viewModels:VehicleListViewModel"
              Shell.NavBarIsVisible="{OnPlatform Default=False, WinUI=True}"
-             Title="Vehicles">
+             Title="{OnPlatform Default=Vehicles, WinUI=''}">
 
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto"
+          MaximumWidthRequest="{StaticResource ContentMaxWidth}"
           Padding="20,16,20,0"
           RowSpacing="12">
 

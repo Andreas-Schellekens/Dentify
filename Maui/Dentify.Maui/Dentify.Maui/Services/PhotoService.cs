@@ -6,7 +6,9 @@ namespace Dentify.Maui.Services
         private const int MaximumPhotoSize = 2048;
         private const int JpegQuality = 85;
 
-        public bool IsCaptureSupported => MediaPicker.Default.IsCaptureSupported;
+        // On Windows the camera dialog crashes this unpackaged app (WinUI, combase.dll), so only the gallery is offered there
+        public bool IsCaptureSupported =>
+            DeviceInfo.Platform != DevicePlatform.WinUI && MediaPicker.Default.IsCaptureSupported;
 
         public async Task<FileResult?> CapturePhotoAsync()
         {

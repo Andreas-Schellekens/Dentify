@@ -5,7 +5,7 @@
              xmlns:models="clr-namespace:Dentify.Maui.Models"
              x:Class="Dentify.Maui.Views.VehicleDetailPage"
              x:DataType="viewModels:VehicleDetailViewModel"
-             Title="{Binding Vehicle.LicensePlate}">
+             Title="Vehicle">
 
     <!-- In the nav bar: on Windows a button in the CollectionView header ignores mouse clicks -->
     <ContentPage.ToolbarItems>
@@ -14,7 +14,7 @@
                      SemanticProperties.Description="Edit vehicle" />
     </ContentPage.ToolbarItems>
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="*,Auto" MaximumWidthRequest="{StaticResource ContentMaxWidth}">
         <RefreshView Command="{Binding RefreshCommand}"
                      IsRefreshing="{Binding IsRefreshing}">
             <CollectionView ItemsSource="{Binding Inspections}"

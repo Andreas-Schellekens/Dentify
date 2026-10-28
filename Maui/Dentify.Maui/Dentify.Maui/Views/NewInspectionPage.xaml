@@ -7,7 +7,7 @@
              x:DataType="viewModels:NewInspectionViewModel"
              Title="New inspection">
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="*,Auto" MaximumWidthRequest="{StaticResource ContentMaxWidth}">
         <ScrollView>
             <VerticalStackLayout Padding="20,16,20,8" Spacing="18">
 
@@ -139,7 +139,15 @@
                         <Button Grid.Column="1"
                                 Text="From gallery"
                                 Style="{StaticResource SecondaryButton}"
-                                Command="{Binding PickPhotosCommand}" />
+                                Command="{Binding PickPhotosCommand}">
+                            <!-- Full width when there is no camera button (Windows) -->
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsCaptureSupported}" Value="False">
+                                    <Setter Property="Grid.Column" Value="0" />
+                                    <Setter Property="Grid.ColumnSpan" Value="2" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
                     </Grid>
                 </VerticalStackLayout>
 

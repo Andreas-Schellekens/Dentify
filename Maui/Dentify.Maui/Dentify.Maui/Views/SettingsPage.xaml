@@ -7,7 +7,7 @@
              Title="Settings">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20,16" Spacing="16">
+        <VerticalStackLayout Padding="20,16" Spacing="16" MaximumWidthRequest="{StaticResource ContentMaxWidth}">
 
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="10">

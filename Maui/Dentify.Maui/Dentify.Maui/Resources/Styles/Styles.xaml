@@ -534,6 +534,9 @@
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
     </Style>
 
+    <!-- Pages keep a readable column on wide windows (Windows, tablets); phones are narrower anyway -->
+    <x:Double x:Key="ContentMaxWidth">720</x:Double>
+
     <Style TargetType="Entry" x:Key="FormEntry">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="HeightRequest" Value="48" />
