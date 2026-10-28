@@ -70,12 +70,16 @@ if ($UseAzure) {
     Set-Secret "Azure:Vision:Endpoint" "https://dentify-vision-as.cognitiveservices.azure.com/"
     Set-Secret "Azure:CustomVision:PredictionEndpoint" "https://asbigfive-prediction.cognitiveservices.azure.com/"
     Set-Secret "Azure:CustomVision:ProjectId" "a773d3ef-b91a-4acb-b895-7745b48ebf39"
-    Set-Secret "Azure:CustomVision:PublishedName" "Iteration1"
+    Set-Secret "Azure:CustomVision:PublishedName" "Iteration2"
+    Set-Secret "Azure:CustomVision:MinimumProbability" "0.7"
     Set-Secret "Azure:CustomVision:ProjectType" "ObjectDetection"
+    Set-Secret "Azure:OpenAI:Endpoint" "https://dentify-rapport.services.ai.azure.com/openai/v1/"
+    Set-Secret "Azure:OpenAI:DeploymentName" "gpt-4.1-mini"
 
     # Secret: typed by the user
     Set-Secret "Azure:Vision:Key" (Read-Secret "Azure AI Vision key (Enter to skip)")
     Set-Secret "Azure:CustomVision:PredictionKey" (Read-Secret "Custom Vision prediction key (Enter to skip)")
+    Set-Secret "Azure:OpenAI:Key" (Read-Secret "Azure OpenAI key (Enter to skip)")
     Set-Secret "AutoMapper:LicenseKey" (Read-Secret "AutoMapper license key (Enter to skip)")
 }
 else {
