@@ -7,6 +7,13 @@
              x:DataType="viewModels:VehicleDetailViewModel"
              Title="{Binding Vehicle.LicensePlate}">
 
+    <!-- In the nav bar: on Windows a button in the CollectionView header ignores mouse clicks -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Edit"
+                     Command="{Binding EditVehicleCommand}"
+                     SemanticProperties.Description="Edit vehicle" />
+    </ContentPage.ToolbarItems>
+
     <Grid RowDefinitions="*,Auto">
         <RefreshView Command="{Binding RefreshCommand}"
                      IsRefreshing="{Binding IsRefreshing}">
@@ -35,8 +42,7 @@
                                             HorizontalOptions="End"
                                             VerticalOptions="Center">
                                         <Label Text="{Binding Vehicle.Type}" Style="{StaticResource BadgeText}" />
-                                    </Border>
-                                </Grid>
+                                    </Border>                                </Grid>
 
                                 <Label Style="{StaticResource PageTitle}"
                                        FontSize="24"

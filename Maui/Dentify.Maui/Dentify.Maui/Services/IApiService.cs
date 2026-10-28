@@ -9,6 +9,9 @@ namespace Dentify.Maui.Services
         Task<IEnumerable<InspectionListDto>> GetInspectionsForVehicleAsync(int vehicleId);
         Task<InspectionDetailDto> GetInspectionAsync(int id);
 
+        Task<VehicleDetailDto> CreateVehicleAsync(VehicleForCreationDto vehicle);
+        Task UpdateVehicleAsync(int id, VehicleForUpdateDto vehicle);
+
         Task<PlateScanResultDto> ScanPlateAsync(FileResult photo);
         Task<InspectionDetailDto> CreateInspectionAsync(InspectionForCreationDto inspection);
         Task<InspectionDetailDto> UploadPhotosAsync(int inspectionId, IEnumerable<FileResult> photos);

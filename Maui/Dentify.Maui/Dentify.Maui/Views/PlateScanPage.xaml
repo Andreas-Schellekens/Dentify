@@ -101,12 +101,16 @@
                     <Border Style="{StaticResource PlateChip}" Padding="14,6" HorizontalOptions="Start">
                         <Label Text="{Binding Result.RecognizedPlate}" Style="{StaticResource PlateText}" FontSize="20" />
                     </Border>
-                    <Label Text="No vehicle has this plate. Check the plate, or pick the vehicle from the list."
+                    <Label Text="No vehicle has this plate. Add it as a new vehicle, or pick it from the list if the plate was misread."
                            Style="{StaticResource BodyText}" />
-                    <Button Text="Choose from the list"
+                    <Button Text="Add this vehicle"
                             Style="{StaticResource PrimaryButton}"
-                            Command="{Binding ChooseFromListCommand}"
-                            Margin="0,6,0,0" />
+                            Command="{Binding AddScannedVehicleCommand}"
+                            Margin="0,6,0,0"
+                            SemanticProperties.Hint="Opens the add vehicle form with this plate filled in" />
+                    <Button Text="Choose from the list"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding ChooseFromListCommand}" />
                     <Button Text="Scan again"
                             Style="{StaticResource SecondaryButton}"
                             Command="{Binding ScanAgainCommand}" />

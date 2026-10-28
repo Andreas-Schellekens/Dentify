@@ -37,6 +37,7 @@ namespace Dentify.Maui
             builder.Services.AddSingleton<NewInspectionViewModel>();
             builder.Services.AddSingleton<InspectionResultViewModel>();
             builder.Services.AddSingleton<SettingsViewModel>();
+            builder.Services.AddSingleton<VehicleFormViewModel>();
             // A new scan always starts clean
             builder.Services.AddTransient<PlateScanViewModel>();
 
@@ -47,6 +48,7 @@ namespace Dentify.Maui
             builder.Services.AddTransient<NewInspectionPage>();
             builder.Services.AddTransient<InspectionResultPage>();
             builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<VehicleFormPage>();
 
             // Routes for pages that are pushed on top of the root page
             Routing.RegisterRoute(nameof(VehicleDetailPage), typeof(VehicleDetailPage));
@@ -54,6 +56,7 @@ namespace Dentify.Maui
             Routing.RegisterRoute(nameof(NewInspectionPage), typeof(NewInspectionPage));
             Routing.RegisterRoute(nameof(InspectionResultPage), typeof(InspectionResultPage));
             Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
+            Routing.RegisterRoute(nameof(VehicleFormPage), typeof(VehicleFormPage));
 
 #if DEBUG
     		builder.Logging.AddDebug();
@@ -65,6 +68,7 @@ namespace Dentify.Maui
             app.Services.GetRequiredService<VehicleDetailViewModel>();
             app.Services.GetRequiredService<NewInspectionViewModel>();
             app.Services.GetRequiredService<InspectionResultViewModel>();
+            app.Services.GetRequiredService<VehicleFormViewModel>();
 
             return app;
         }

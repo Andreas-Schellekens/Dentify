@@ -10,7 +10,7 @@ using Dentify.Maui.Views;
 namespace Dentify.Maui.ViewModels
 {
     public partial class VehicleListViewModel : BaseViewModel,
-        IRecipient<ApiSettingsChangedMessage>, IRecipient<PlateScannedMessage>
+        IRecipient<ApiSettingsChangedMessage>, IRecipient<PlateScannedMessage>, IRecipient<VehicleSavedMessage>
     {
         private static readonly TimeSpan SearchDelay = TimeSpan.FromMilliseconds(350);
 
@@ -49,6 +49,7 @@ namespace Dentify.Maui.ViewModels
 
             WeakReferenceMessenger.Default.Register<ApiSettingsChangedMessage>(this);
             WeakReferenceMessenger.Default.Register<PlateScannedMessage>(this);
+            WeakReferenceMessenger.Default.Register<VehicleSavedMessage>(this);
 
             // The page has no code-behind to trigger a load, so the first load starts here
             _ = LoadVehiclesAsync();
@@ -65,6 +66,20 @@ namespace Dentify.Maui.ViewModels
         {
             if (!string.IsNullOrWhiteSpace(message.Value.RecognizedPlate))
                 SearchQuery = message.Value.RecognizedPlate;
+        }
+
+        // A new or changed vehicle must show up in the list when the user comes back
+        public void Receive(VehicleSavedMessage message)
+        {
+            _ = LoadVehiclesAsync();
+        }
+
+        [RelayCommand]
+        private async Task AddVehicleAsync()
+        {
+            // The form view model exists from startup, so it has a clean form before the page appears
+            WeakReferenceMessenger.Default.Send(new VehicleFormRequestedMessage(new VehicleListDto()));
+            await _navigationService.NavigateToAsync(nameof(VehicleFormPage));
         }
 
         [RelayCommand]

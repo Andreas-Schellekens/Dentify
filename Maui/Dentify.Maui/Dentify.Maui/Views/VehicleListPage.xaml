@@ -13,7 +13,7 @@
           RowSpacing="12">
 
         <!-- Header -->
-        <Grid ColumnDefinitions="*,Auto">
+        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
             <VerticalStackLayout Spacing="0">
                 <Label Text="DENTIFY" Style="{StaticResource Caption}" />
                 <Label Text="Vehicles"
@@ -21,6 +21,19 @@
                        SemanticProperties.HeadingLevel="Level1" />
             </VerticalStackLayout>
             <Border Grid.Column="1"
+                    Style="{StaticResource Card}"
+                    Padding="0"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    StrokeShape="RoundRectangle 12"
+                    VerticalOptions="Center">
+                <ImageButton Source="ic_add.png"
+                             Command="{Binding AddVehicleCommand}"
+                             Padding="10"
+                             BackgroundColor="Transparent"
+                             SemanticProperties.Description="Add vehicle" />
+            </Border>
+            <Border Grid.Column="2"
                     Style="{StaticResource Card}"
                     Padding="0"
                     WidthRequest="44"
@@ -135,7 +148,7 @@
             <Label Text="{Binding EmptyStateTitle}"
                    Style="{StaticResource SectionTitle}"
                    HorizontalTextAlignment="Center" />
-            <Label Text="Check the spelling, or pull down to refresh the list."
+            <Label Text="Check the spelling, pull down to refresh, or add the vehicle with the + button."
                    Style="{StaticResource MutedText}"
                    HorizontalTextAlignment="Center" />
         </VerticalStackLayout>
