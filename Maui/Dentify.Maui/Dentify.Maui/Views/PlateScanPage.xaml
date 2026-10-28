@@ -7,7 +7,7 @@
              Title="Scan plate">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20,16,20,24" Spacing="16">
+        <VerticalStackLayout Padding="20,16,20,24" Spacing="16" MaximumWidthRequest="{StaticResource ContentMaxWidth}">
 
             <!-- Intro -->
             <Border Style="{StaticResource Card}" Padding="20" IsVisible="{Binding ShowIntro}">

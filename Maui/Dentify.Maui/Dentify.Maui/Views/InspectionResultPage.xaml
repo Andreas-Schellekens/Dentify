@@ -8,7 +8,7 @@
              x:DataType="viewModels:InspectionResultViewModel"
              Title="Inspection">
 
-    <Grid>
+    <Grid MaximumWidthRequest="{StaticResource ContentMaxWidth}">
         <!-- Loading an inspection from the history -->
         <VerticalStackLayout IsVisible="{Binding ShowLoading}" VerticalOptions="Center" Spacing="12">
             <ActivityIndicator IsRunning="{Binding ShowLoading}" />
@@ -28,6 +28,10 @@
                 <!-- Damage status -->
                 <Border Style="{StaticResource Card}" Padding="20" StrokeThickness="0">
                     <Border.Triggers>
+                        <!-- The labels use dark ink on light status colors, so "no photos" needs a light background too -->
+                        <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="NoPhotos">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Gray100}" />
+                        </DataTrigger>
                         <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="NoDamage">
                             <Setter Property="BackgroundColor" Value="{StaticResource SuccessBackground}" />
                         </DataTrigger>
@@ -52,6 +56,9 @@
                                TextColor="{StaticResource InkLight}"
                                SemanticProperties.HeadingLevel="Level1">
                             <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="NoPhotos">
+                                    <Setter Property="TextColor" Value="{StaticResource Gray600}" />
+                                </DataTrigger>
                                 <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="NoDamage">
                                     <Setter Property="TextColor" Value="{StaticResource Success}" />
                                 </DataTrigger>
