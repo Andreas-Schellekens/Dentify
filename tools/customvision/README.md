@@ -58,6 +58,12 @@ Classification project:
 python $script --cardd-dir $cardd --per-tag 100 --mode classification
 ```
 
+Everything (all labeled images of all splits, about 4000 images and 3 GB, under the F0 limit of 5000), keeping the quick-test photos out:
+
+```powershell
+python $script --cardd-dir $cardd --all --splits train2017 val2017 test2017 --exclude-dir "<downloads>\CarDD\quick-test"
+```
+
 Expected output: a `Project:` line with the right name and type, `Created tag ...` six times, a counter up to `352/352`, and `Done: {'OK': 352}`. `OKDuplicate` means the images were already in that project. If the mode does not match the project type, the script stops with "Nothing uploaded".
 
 Unseen test photos for **Quick Test** (copies 15 images from the test split):

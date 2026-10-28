@@ -37,6 +37,19 @@ namespace Dentify.Maui.Services
         public async Task<InspectionDetailDto> GetInspectionAsync(int id) =>
             await GetAsync<InspectionDetailDto>($"api/inspections/{id}");
 
+        public async Task<VehicleDetailDto> CreateVehicleAsync(VehicleForCreationDto vehicle)
+        {
+            using var content = JsonContent.Create(vehicle, options: JsonOptions);
+            return await SendAsync<VehicleDetailDto>(HttpMethod.Post, "api/vehicles", content);
+        }
+
+        // PUT returns 204 No Content, so there is no body to read
+        public async Task UpdateVehicleAsync(int id, VehicleForUpdateDto vehicle)
+        {
+            using var content = JsonContent.Create(vehicle, options: JsonOptions);
+            using var response = await SendRequestAsync(HttpMethod.Put, BuildUri($"api/vehicles/{id}"), content);
+        }
+
         public async Task<PlateScanResultDto> ScanPlateAsync(FileResult photo)
         {
             using var content = new MultipartFormDataContent();

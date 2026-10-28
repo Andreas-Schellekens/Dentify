@@ -94,6 +94,15 @@ namespace Dentify.Maui.ViewModels
         }
 
         [RelayCommand]
+        private async Task EditVehicleAsync()
+        {
+            if (Vehicle == null) return;
+
+            WeakReferenceMessenger.Default.Send(new VehicleFormRequestedMessage(Vehicle));
+            await _navigationService.NavigateToAsync(nameof(VehicleFormPage));
+        }
+
+        [RelayCommand]
         private async Task OpenInspectionAsync(InspectionListItem item)
         {
             if (item == null) return;

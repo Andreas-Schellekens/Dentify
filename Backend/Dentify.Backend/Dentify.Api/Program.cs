@@ -44,7 +44,10 @@ if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:
 else
     builder.Services.AddTransient<IDamageDetectionService, FakeDamageDetectionService>();
 
-builder.Services.AddTransient<IReportService, FakeReportService>();
+if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:OpenAI:Endpoint"]))
+    builder.Services.AddSingleton<IReportService, AzureOpenAIReportService>();
+else
+    builder.Services.AddTransient<IReportService, FakeReportService>();
 
 builder.Services.AddSingleton<IPhotoStorageService, LocalPhotoStorageService>();
 builder.Services.AddSingleton<IImageResizeService, SkiaImageResizeService>();

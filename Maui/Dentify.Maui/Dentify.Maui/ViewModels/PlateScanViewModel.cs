@@ -84,6 +84,17 @@ namespace Dentify.Maui.ViewModels
         }
 
         [RelayCommand]
+        private async Task AddScannedVehicleAsync()
+        {
+            if (Result == null) return;
+
+            WeakReferenceMessenger.Default.Send(new VehicleFormRequestedMessage(
+                new VehicleListDto { LicensePlate = Result.RecognizedPlate ?? string.Empty }));
+            // Replace the scan page, so back goes to the vehicle list
+            await _navigationService.NavigateToAsync($"../{nameof(VehicleFormPage)}");
+        }
+
+        [RelayCommand]
         private async Task ChooseFromListAsync()
         {
             if (Result != null)

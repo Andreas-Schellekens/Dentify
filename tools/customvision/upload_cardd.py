@@ -174,6 +174,8 @@ def main():
     parser.add_argument("--cardd-dir", required=True, help="Path to the CarDD_COCO folder")
     parser.add_argument("--per-tag", type=int, default=60, help="Minimum number of images per tag (default 60)")
     parser.add_argument("--splits", nargs="+", default=["train2017", "val2017"])
+    parser.add_argument("--all", action="store_true", help="Upload every labeled image of the splits instead of a balanced selection")
+    parser.add_argument("--exclude-dir", help="Skip images whose file name is in this folder (e.g. the quick-test photos)")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--mode", choices=["detection", "classification"], default="detection")
     parser.add_argument("--dry-run", action="store_true", help="Only show the selection, upload nothing")
@@ -191,7 +193,19 @@ def main():
     for split in args.splits:
         images.extend(load_coco(args.cardd_dir, split))
 
-    selected, count_per_tag = select_balanced(images, args.per_tag, args.seed)
+    if args.exclude_dir:
+        excluded = set(os.listdir(args.exclude_dir))
+        images = [image for image in images if os.path.basename(image["path"]) not in excluded]
+        print(f"Excluded the {len(excluded)} files in {args.exclude_dir}")
+
+    if args.all:
+        selected = images
+        count_per_tag = defaultdict(int)
+        for image in images:
+            for tag in {tag for tag, _ in image["boxes"]}:
+                count_per_tag[tag] += 1
+    else:
+        selected, count_per_tag = select_balanced(images, args.per_tag, args.seed)
     region_count = sum(len(image["boxes"]) for image in selected)
     print(f"Selected {len(selected)} images with {region_count} regions")
     for tag in sorted(count_per_tag):

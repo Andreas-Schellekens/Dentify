@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:Dentify.Maui.ViewModels"
+             x:Class="Dentify.Maui.Views.VehicleFormPage"
+             x:DataType="viewModels:VehicleFormViewModel"
+             Title="{Binding PageTitle}">
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView>
+            <VerticalStackLayout Padding="20,16,20,8" Spacing="18">
+
+                <!-- License plate: scan it, or type it -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="License plate" Style="{StaticResource SectionTitle}" />
+                    <!-- Same style as the other fields: a white plate-styled Entry rendered its text invisible on Windows -->
+                    <Border Style="{StaticResource Card}" Padding="12,2" StrokeShape="RoundRectangle 12">
+                        <Entry Text="{Binding LicensePlate}"
+                               Style="{StaticResource FormEntry}"
+                               Placeholder="1-ABC-123"
+                               MaxLength="20"
+                               FontFamily="OpenSansSemibold"
+                               IsEnabled="{Binding IsNotBusy}"
+                               SemanticProperties.Description="License plate" />
+                    </Border>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="Scan plate"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ScanPlateWithCameraCommand}"
+                                IsVisible="{Binding IsCaptureSupported}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                SemanticProperties.Hint="Takes a photo of the plate and fills it in" />
+                        <Button Grid.Column="1"
+                                Text="Plate from gallery"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ScanPlateFromGalleryCommand}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                SemanticProperties.Hint="Reads the plate from a photo and fills it in" />
+                    </Grid>
+                    <HorizontalStackLayout Spacing="10" IsVisible="{Binding IsScanning}">
+                        <ActivityIndicator IsRunning="{Binding IsScanning}" WidthRequest="20" HeightRequest="20" />
+                        <Label Text="Reading the plate…" Style="{StaticResource MutedText}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding ScanMessage}"
+                           Style="{StaticResource MutedText}"
+                           TextColor="{StaticResource Success}"
+                           IsVisible="{Binding HasScanMessage}" />
+                </VerticalStackLayout>
+
+                <!-- Brand and model -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Brand" Style="{StaticResource SectionTitle}" />
+                    <Border Style="{StaticResource Card}" Padding="12,2" StrokeShape="RoundRectangle 12">
+                        <Entry Text="{Binding Brand}"
+                               Style="{StaticResource FormEntry}"
+                               Placeholder="e.g. Renault"
+                               MaxLength="50"
+                               IsEnabled="{Binding IsNotBusy}"
+                               SemanticProperties.Description="Brand" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Model" Style="{StaticResource SectionTitle}" />
+                    <Border Style="{StaticResource Card}" Padding="12,2" StrokeShape="RoundRectangle 12">
+                        <Entry Text="{Binding Model}"
+                               Style="{StaticResource FormEntry}"
+                               Placeholder="e.g. Clio"
+                               MaxLength="50"
+                               IsEnabled="{Binding IsNotBusy}"
+                               SemanticProperties.Description="Model" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Type -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Type" Style="{StaticResource SectionTitle}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="Car"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding SelectCarCommand}"
+                                IsEnabled="{Binding IsNotBusy}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsCar}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                        <Button Grid.Column="1"
+                                Text="Van"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding SelectVanCommand}"
+                                IsEnabled="{Binding IsNotBusy}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsVan}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource ErrorCard}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Save -->
+        <Button Grid.Row="1"
+                Text="{Binding SaveButtonText}"
+                Style="{StaticResource PrimaryButton}"
+                Command="{Binding SaveCommand}"
+                Margin="20,8,20,16" />
+    </Grid>
+
+</ContentPage>
