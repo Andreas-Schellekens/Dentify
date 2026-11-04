@@ -22,15 +22,18 @@ namespace Dentify.Api.Controllers
         private IInspectionPhotoRepository _photoRepository;
         private IPhotoStorageService _photoStorageService;
         private IImageResizeService _imageResizeService;
+        private IPhotoAnnotationService _photoAnnotationService;
         private IDamageDetectionService _damageDetectionService;
+        private IDamageReviewService _damageReviewService;
         private IReportService _reportService;
         private IMapper _mapper;
 
         public InspectionsController(IInspectionRepository inspectionRepository,
             IVehicleRepository vehicleRepository, IDamageRepository damageRepository,
             IInspectionPhotoRepository photoRepository, IPhotoStorageService photoStorageService,
-            IImageResizeService imageResizeService,
-            IDamageDetectionService damageDetectionService, IReportService reportService, IMapper mapper)
+            IImageResizeService imageResizeService, IPhotoAnnotationService photoAnnotationService,
+            IDamageDetectionService damageDetectionService,
+            IDamageReviewService damageReviewService, IReportService reportService, IMapper mapper)
         {
             _inspectionRepository = inspectionRepository;
             _vehicleRepository = vehicleRepository;
@@ -38,7 +41,9 @@ namespace Dentify.Api.Controllers
             _photoRepository = photoRepository;
             _photoStorageService = photoStorageService;
             _imageResizeService = imageResizeService;
+            _photoAnnotationService = photoAnnotationService;
             _damageDetectionService = damageDetectionService;
+            _damageReviewService = damageReviewService;
             _reportService = reportService;
             _mapper = mapper;
         }
@@ -101,7 +106,7 @@ namespace Dentify.Api.Controllers
             }
 
             // Run damage detection on all photos first, so nothing is stored when the AI service is unavailable
-            var analyzedPhotos = new List<(byte[] ImageData, string Extension, IEnumerable<DamagePrediction> Predictions)>();
+            var analyzedPhotos = new List<(byte[] ImageData, List<DamagePrediction> Candidates, List<DamagePrediction> Predictions)>();
             foreach (var photo in photos)
             {
                 using var memoryStream = new MemoryStream();
@@ -119,8 +124,10 @@ namespace Dentify.Api.Controllers
 
                 try
                 {
-                    var predictions = await _damageDetectionService.DetectDamagesAsync(imageData);
-                    analyzedPhotos.Add((imageData, ".jpg", predictions));
+                    // Custom Vision proposes damages, the review drops the ones that are not really there
+                    var candidates = (await _damageDetectionService.DetectDamagesAsync(imageData)).ToList();
+                    var predictions = (await _damageReviewService.ReviewDamagesAsync(imageData, candidates)).ToList();
+                    analyzedPhotos.Add((imageData, candidates, predictions));
                 }
                 catch (Exception exception) when (exception is HttpRequestException or Azure.RequestFailedException)
                 {
@@ -129,10 +136,23 @@ namespace Dentify.Api.Controllers
                 }
             }
 
-            foreach (var (imageData, extension, predictions) in analyzedPhotos)
+            foreach (var (imageData, candidates, predictions) in analyzedPhotos)
             {
-                var url = await _photoStorageService.SavePhotoAsync(imageData, extension);
-                await _photoRepository.AddPhotoAsync(new InspectionPhoto(url, DateTime.Now) { InspectionId = id });
+                var url = await _photoStorageService.SavePhotoAsync(imageData, ".jpg");
+
+                // Two extra copies with boxes: what the trained model proposed, and what the review kept
+                var rejected = candidates.Except(predictions);
+                var modelResultUrl = await _photoStorageService.SavePhotoAsync(
+                    _photoAnnotationService.DrawDetections(imageData, candidates), ".jpg");
+                var reviewResultUrl = await _photoStorageService.SavePhotoAsync(
+                    _photoAnnotationService.DrawReview(imageData, predictions, rejected), ".jpg");
+
+                await _photoRepository.AddPhotoAsync(new InspectionPhoto(url, DateTime.Now)
+                {
+                    InspectionId = id,
+                    ModelResultUrl = modelResultUrl,
+                    ReviewResultUrl = reviewResultUrl
+                });
                 inspection.PhotoUrl ??= url;
 
                 foreach (var prediction in predictions)

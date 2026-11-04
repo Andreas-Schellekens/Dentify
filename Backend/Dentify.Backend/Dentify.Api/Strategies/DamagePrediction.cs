@@ -15,6 +15,9 @@ namespace Dentify.Api.Strategies
         // Probability between 0 and 1
         public double Confidence { get; set; }
 
+        // Where the damage is on the photo; null for a classification project (whole photo)
+        public DamageBox? Box { get; set; }
+
         public DamagePrediction(string description, string severity, string location, double confidence)
         {
             Description = description;

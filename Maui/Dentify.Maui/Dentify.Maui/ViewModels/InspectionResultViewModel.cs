@@ -34,12 +34,24 @@ namespace Dentify.Maui.ViewModels
         [ObservableProperty]
         public partial bool IsJustSaved { get; set; }
 
+        // true: photos after the AI review, false: all boxes the trained model proposed
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PhotoLegend))]
+        public partial bool ShowReviewResult { get; set; }
+
+        [ObservableProperty]
+        public partial bool HasDamageBoxes { get; set; }
+
         public bool HasInspection => Inspection != null;
         public bool ShowLoading => Inspection == null && !HasError;
         public bool HasPhotos => Photos.Count > 0;
         public bool HasDamages => Damages.Count > 0;
         public bool HasSummary => !string.IsNullOrWhiteSpace(Inspection?.AiSummary);
         public string TypeText => Inspection?.Type == "Return" ? "Return" : "Departure";
+
+        public string PhotoLegend => ShowReviewResult
+            ? "Green: confirmed by the AI check. Red dashed: rejected as not really there."
+            : "Orange: every damage the trained Custom Vision model proposed.";
 
         // "NoPhotos", "NoDamage", "Minor", "Moderate" or "Severe", the page picks the colors
         public string Status
@@ -76,6 +88,7 @@ namespace Dentify.Maui.ViewModels
             _navigationService = navigationService;
             Photos = new ObservableCollection<PhotoItem>();
             Damages = new ObservableCollection<DamageListDto>();
+            ShowReviewResult = true;
 
             WeakReferenceMessenger.Default.Register<InspectionSavedMessage>(this);
             WeakReferenceMessenger.Default.Register<InspectionSelectedMessage>(this);
@@ -104,6 +117,24 @@ namespace Dentify.Maui.ViewModels
         private async Task RetryAsync()
         {
             await LoadInspectionAsync();
+        }
+
+        [RelayCommand]
+        private void ShowModel()
+        {
+            ShowReviewResult = false;
+        }
+
+        [RelayCommand]
+        private void ShowReview()
+        {
+            ShowReviewResult = true;
+        }
+
+        partial void OnShowReviewResultChanged(bool value)
+        {
+            foreach (var photo in Photos)
+                photo.Show(value);
         }
 
         [RelayCommand]
@@ -159,9 +190,11 @@ namespace Dentify.Maui.ViewModels
 
             var photos = inspection.Photos
                 .OrderBy(photo => photo.UploadedAt)
-                .Select(photo => new PhotoItem(photo.Url))
+                .Select(photo => new PhotoItem(photo.Url, photo.ModelResultUrl, photo.ReviewResultUrl))
                 .ToList();
             Photos = new ObservableCollection<PhotoItem>(photos);
+            HasDamageBoxes = inspection.Photos.Any(photo => photo.ReviewResultUrl != null);
+            ShowReviewResult = true;
             OnPropertyChanged(nameof(ShowLoading));
 
             _ = Task.WhenAll(photos.Select(LoadPhotoAsync));
@@ -169,8 +202,9 @@ namespace Dentify.Maui.ViewModels
 
         private async Task LoadPhotoAsync(PhotoItem photo)
         {
-            var image = await _photoLoaderService.LoadAsync(photo.Url);
-            MainThread.BeginInvokeOnMainThread(() => photo.Image = image);
+            var modelImage = await _photoLoaderService.LoadAsync(photo.ModelUrl);
+            var reviewImage = await _photoLoaderService.LoadAsync(photo.ReviewUrl);
+            MainThread.BeginInvokeOnMainThread(() => photo.SetImages(modelImage, reviewImage, ShowReviewResult));
         }
 
         private static int SeverityRank(string severity) => severity switch
