@@ -145,8 +145,8 @@ Details the app must handle:
 Status:
 - API complete (all endpoints above, Swagger, seed data). Plate OCR, Custom Vision damage detection and the Azure OpenAI report (resource `dentify-rapport`, deployment `gpt-4.1-mini`) use real Azure resources.
 - Custom Vision: object detection project `Dentify-Detection` (resource `asbigfive`, Germany West Central), the API uses `Iteration2` (all ~4000 labeled CarDD images, mAP 69.7%) with `MinimumProbability` 0.4, and gpt-4.1-mini reviews every proposed damage on the photo (without the review, 0.7). On 15 unseen CarDD test photos it found 17 of 24 damage types with 2 false alarms (Iteration1: 16/24, 13 false alarms). CarDD only has damaged cars, mostly close-ups, so on a whole undamaged car it can still report a damage (a windshield reflection as broken glass, any tire as a flat tire). The GPT review removes those: it rejected all 4 false alarms on an undamaged Clio and a 94% "flat tire" on a dented Peugeot, and kept the real dent and the damage on the Tesla demo photos. The report still flags low-confidence damages for a manual check. Training in Germany West Central often hangs; see `tools/customvision/README.md`.
-- MAUI app: all pages and the full flow (plate scan → new inspection → upload → result), plus the vehicle form and the Custom Vision / AI check toggle, are in `main` and build for Windows without warnings. Not yet tested end to end on Finn's PC (no LocalDB there) or on Android/iOS devices.
-- Open: the app id is still the template `com.companyname.dentify.maui` (decide on a real one before publishing).
+- MAUI app: all pages and the full flow (plate scan → new inspection → upload → result), plus the vehicle form and the Custom Vision / AI check toggle, are in `main` and build for Windows and Android without warnings. Tested end to end on Windows and on a Samsung Galaxy (Android) through Ngrok, also on mobile data; the camera, the plate scan and the upload work on the phone. Not tested on iOS.
+- App id: `be.dentify.app` (was the template `com.companyname.dentify.maui`; an Android phone with the old build installs the new one as a separate app).
 
 ## Running the API locally (new PC)
 
