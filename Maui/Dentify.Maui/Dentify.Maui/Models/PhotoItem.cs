@@ -9,7 +9,7 @@ namespace Dentify.Maui.Models
         private ImageSource? _modelImage;
         private ImageSource? _reviewImage;
 
-        // Photos from before the damage boxes have no result copies: then the plain photo is used
+        // Photos without boxes (or from before the damage boxes) have no result copies: then the plain photo is used
         public string ModelUrl { get; }
         public string ReviewUrl { get; }
 

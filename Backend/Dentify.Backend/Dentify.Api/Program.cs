@@ -34,17 +34,22 @@ builder.Services.AddScoped<IInspectionPhotoRepository, InspectionPhotoRepository
 // and that service is configured (user-secrets). Otherwise the fake is used, so the app works without Azure.
 var useFakeServices = builder.Configuration.GetValue("Azure:UseFakeServices", builder.Environment.IsDevelopment());
 
-if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:Vision:Endpoint"]))
+// A service only counts as configured when all its settings are there, e.g. an endpoint without a key falls back to the fake
+bool IsConfigured(params string[] keys) =>
+    !useFakeServices && keys.All(key => !string.IsNullOrWhiteSpace(builder.Configuration[key]));
+
+if (IsConfigured("Azure:Vision:Endpoint", "Azure:Vision:Key"))
     builder.Services.AddSingleton<IPlateReaderService, AzurePlateReaderService>();
 else
     builder.Services.AddTransient<IPlateReaderService, FakePlateReaderService>();
 
-if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:CustomVision:PredictionEndpoint"]))
+if (IsConfigured("Azure:CustomVision:PredictionEndpoint", "Azure:CustomVision:PredictionKey",
+        "Azure:CustomVision:ProjectId", "Azure:CustomVision:PublishedName"))
     builder.Services.AddHttpClient<IDamageDetectionService, CustomVisionDamageDetectionService>();
 else
     builder.Services.AddTransient<IDamageDetectionService, FakeDamageDetectionService>();
 
-if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:OpenAI:Endpoint"]))
+if (IsConfigured("Azure:OpenAI:Endpoint", "Azure:OpenAI:Key", "Azure:OpenAI:DeploymentName"))
 {
     builder.Services.AddSingleton<IReportService, AzureOpenAIReportService>();
     builder.Services.AddSingleton<IDamageReviewService, AzureOpenAIDamageReviewService>();

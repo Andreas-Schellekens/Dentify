@@ -50,7 +50,7 @@ namespace Dentify.Maui.ViewModels
         public string TypeText => Inspection?.Type == "Return" ? "Return" : "Departure";
 
         public string PhotoLegend => ShowReviewResult
-            ? "Green: confirmed by the AI check. Red dashed: rejected as not really there."
+            ? "Green: kept as damage. Red dashed: rejected by the AI check. Grey dashed: not checked and too uncertain to keep."
             : "Orange: every damage the trained Custom Vision model proposed.";
 
         // "NoPhotos", "NoDamage", "Minor", "Moderate" or "Severe", the page picks the colors
@@ -202,8 +202,16 @@ namespace Dentify.Maui.ViewModels
 
         private async Task LoadPhotoAsync(PhotoItem photo)
         {
-            var modelImage = await _photoLoaderService.LoadAsync(photo.ModelUrl);
-            var reviewImage = await _photoLoaderService.LoadAsync(photo.ReviewUrl);
+            // Both copies at the same time: over Ngrok every download takes a while.
+            // Older photos have no copies, then both URLs are the plain photo and it is downloaded once.
+            var modelTask = _photoLoaderService.LoadAsync(photo.ModelUrl);
+            var reviewTask = photo.ReviewUrl == photo.ModelUrl
+                ? modelTask
+                : _photoLoaderService.LoadAsync(photo.ReviewUrl);
+            await Task.WhenAll(modelTask, reviewTask);
+
+            var modelImage = modelTask.Result;
+            var reviewImage = reviewTask.Result;
             MainThread.BeginInvokeOnMainThread(() => photo.SetImages(modelImage, reviewImage, ShowReviewResult));
         }
 

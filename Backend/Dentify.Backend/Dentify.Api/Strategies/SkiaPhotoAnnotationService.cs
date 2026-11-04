@@ -8,8 +8,9 @@ namespace Dentify.Api.Strategies
         private const int JpegQuality = 85;
 
         private static readonly SKColor DetectionColor = SKColor.Parse("#F59E0B"); // amber: proposed by the model
-        private static readonly SKColor ConfirmedColor = SKColor.Parse("#16A34A"); // green: confirmed by the review
-        private static readonly SKColor RejectedColor = SKColor.Parse("#DC2626");  // red: rejected by the review
+        private static readonly SKColor KeptColor = SKColor.Parse("#16A34A");      // green: kept as a damage
+        private static readonly SKColor RejectedColor = SKColor.Parse("#DC2626");  // red: rejected by the AI check
+        private static readonly SKColor UncertainColor = SKColor.Parse("#6B7280"); // grey: no AI verdict, too uncertain
 
         public byte[] DrawDetections(byte[] imageData, IEnumerable<DamagePrediction> damages)
         {
@@ -20,16 +21,19 @@ namespace Dentify.Api.Strategies
             });
         }
 
-        public byte[] DrawReview(byte[] imageData, IEnumerable<DamagePrediction> confirmed, IEnumerable<DamagePrediction> rejected)
+        public byte[] DrawReview(byte[] imageData, DamageReviewResult review)
         {
             return Draw(imageData, (canvas, size) =>
             {
-                // Rejected first, so the confirmed boxes stay on top
-                foreach (var damage in rejected)
+                // Dropped damages first, so the kept boxes stay on top
+                foreach (var damage in review.Uncertain)
+                    DrawBox(canvas, size, damage, UncertainColor, $"{damage.Description} (uncertain)", dashed: true);
+
+                foreach (var damage in review.Rejected)
                     DrawBox(canvas, size, damage, RejectedColor, $"{damage.Description} (rejected)", dashed: true);
 
-                foreach (var damage in confirmed)
-                    DrawBox(canvas, size, damage, ConfirmedColor, $"{damage.Description} {damage.Confidence:P0}", dashed: false);
+                foreach (var damage in review.Kept)
+                    DrawBox(canvas, size, damage, KeptColor, $"{damage.Description} {damage.Confidence:P0}", dashed: false);
             });
         }
 

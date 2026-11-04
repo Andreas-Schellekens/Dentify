@@ -42,7 +42,8 @@
                                             HorizontalOptions="End"
                                             VerticalOptions="Center">
                                         <Label Text="{Binding Vehicle.Type}" Style="{StaticResource BadgeText}" />
-                                    </Border>                                </Grid>
+                                    </Border>
+                                </Grid>
 
                                 <Label Style="{StaticResource PageTitle}"
                                        FontSize="24"

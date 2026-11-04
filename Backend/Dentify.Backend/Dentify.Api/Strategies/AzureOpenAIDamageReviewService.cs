@@ -52,15 +52,16 @@ namespace Dentify.Api.Strategies
             _logger = logger;
         }
 
-        public async Task<IEnumerable<DamagePrediction>> ReviewDamagesAsync(byte[] imageData, IEnumerable<DamagePrediction> candidates)
+        public async Task<DamageReviewResult> ReviewDamagesAsync(byte[] imageData, IEnumerable<DamagePrediction> candidates)
         {
-            var proposed = candidates
-                .OrderByDescending(c => c.Confidence)
-                .Take(MaxCandidates)
-                .ToList();
+            var sorted = candidates.OrderByDescending(c => c.Confidence).ToList();
+            var proposed = sorted.Take(MaxCandidates).ToList();
+
+            // The least confident ones past MaxCandidates get no AI verdict: the confidence threshold decides for them
+            var notReviewed = await _fallback.ReviewDamagesAsync(imageData, sorted.Skip(MaxCandidates));
 
             if (proposed.Count == 0)
-                return proposed;
+                return notReviewed;
 
             var options = new CreateResponseOptions
             {
@@ -89,18 +90,19 @@ namespace Dentify.Api.Strategies
                 var confirmed = ReadConfirmedNumbers(response.GetOutputText());
 
                 var kept = proposed.Where((_, index) => confirmed.Contains(index + 1)).ToList();
+                var rejected = proposed.Except(kept).ToList();
 
                 _logger.LogInformation("Damage review kept {Kept} and rejected {Rejected}",
-                    Describe(kept), Describe(proposed.Except(kept)));
+                    Describe(kept), Describe(rejected));
 
-                return kept;
+                return new DamageReviewResult(kept.Concat(notReviewed.Kept).ToList(), rejected, notReviewed.Uncertain);
             }
             catch (Exception exception) when (exception is ClientResultException or HttpRequestException
                                                   or TaskCanceledException or JsonException)
             {
                 // Without a review, only keep the damages the trained model is sure about
                 _logger.LogWarning(exception, "Damage review failed, using the confidence threshold instead");
-                return await _fallback.ReviewDamagesAsync(imageData, proposed);
+                return await _fallback.ReviewDamagesAsync(imageData, sorted);
             }
         }
 
