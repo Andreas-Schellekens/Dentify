@@ -71,7 +71,10 @@ if ($UseAzure) {
     Set-Secret "Azure:CustomVision:PredictionEndpoint" "https://asbigfive-prediction.cognitiveservices.azure.com/"
     Set-Secret "Azure:CustomVision:ProjectId" "a773d3ef-b91a-4acb-b895-7745b48ebf39"
     Set-Secret "Azure:CustomVision:PublishedName" "Iteration2"
-    Set-Secret "Azure:CustomVision:MinimumProbability" "0.7"
+    # Custom Vision proposes damages from 0.4, Azure OpenAI checks them on the photo.
+    # Without that check (no OpenAI or a failing call) only damages from 0.7 are kept.
+    Set-Secret "Azure:CustomVision:MinimumProbability" "0.4"
+    Set-Secret "Azure:DamageReview:MinimumProbability" "0.7"
     Set-Secret "Azure:CustomVision:ProjectType" "ObjectDetection"
     Set-Secret "Azure:OpenAI:Endpoint" "https://dentify-rapport.services.ai.azure.com/openai/v1/"
     Set-Secret "Azure:OpenAI:DeploymentName" "gpt-4.1-mini"

@@ -98,16 +98,45 @@
                 <!-- Photos -->
                 <VerticalStackLayout Spacing="10" IsVisible="{Binding HasPhotos}">
                     <Label Text="Photos" Style="{StaticResource SectionTitle}" />
+
+                    <!-- Step 1: the trained model, step 2: the AI check of its boxes -->
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding HasDamageBoxes}">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Text="1. Custom Vision"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding ShowModelCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding ShowReviewResult}" Value="False">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="1"
+                                    Text="2. AI check"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding ShowReviewCommand}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding ShowReviewResult}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </Grid>
+                        <Label Text="{Binding PhotoLegend}" Style="{StaticResource MutedText}" FontSize="13" />
+                    </VerticalStackLayout>
+
                     <CollectionView ItemsSource="{Binding Photos}"
-                                    HeightRequest="210"
+                                    HeightRequest="250"
                                     SelectionMode="None">
                         <CollectionView.ItemsLayout>
                             <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:PhotoItem">
-                                <Border WidthRequest="280"
-                                        HeightRequest="200"
+                                <Border WidthRequest="320"
+                                        HeightRequest="240"
                                         StrokeThickness="0"
                                         StrokeShape="RoundRectangle 14"
                                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource CardDark}}">
@@ -116,8 +145,9 @@
                                                            IsVisible="{Binding IsLoaded, Converter={StaticResource InverseBoolConverter}}"
                                                            HorizontalOptions="Center"
                                                            VerticalOptions="Center" />
+                                        <!-- AspectFit: the damage boxes can be near the edges -->
                                         <Image Source="{Binding Image}"
-                                               Aspect="AspectFill"
+                                               Aspect="AspectFit"
                                                SemanticProperties.Description="Inspection photo" />
                                     </Grid>
                                 </Border>

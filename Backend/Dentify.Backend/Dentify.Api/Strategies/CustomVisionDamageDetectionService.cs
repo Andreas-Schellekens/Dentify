@@ -59,7 +59,12 @@ namespace Dentify.Api.Strategies
                     ToDescription(p.TagName),
                     ToSeverity(p.TagName),
                     p.BoundingBox == null ? "Whole photo" : ToLocation(p.BoundingBox),
-                    Math.Round(p.Probability, 4)))
+                    Math.Round(p.Probability, 4))
+                {
+                    Box = p.BoundingBox == null
+                        ? null
+                        : new DamageBox(p.BoundingBox.Left, p.BoundingBox.Top, p.BoundingBox.Width, p.BoundingBox.Height)
+                })
                 .ToList();
         }
 

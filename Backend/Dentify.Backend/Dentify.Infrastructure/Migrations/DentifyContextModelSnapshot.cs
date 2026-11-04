@@ -140,6 +140,14 @@ namespace Dentify.Infrastructure.Migrations
                     b.Property<int>("InspectionId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ModelResultUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ReviewResultUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2");
 

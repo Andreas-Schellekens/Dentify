@@ -45,12 +45,19 @@ else
     builder.Services.AddTransient<IDamageDetectionService, FakeDamageDetectionService>();
 
 if (!useFakeServices && !string.IsNullOrWhiteSpace(builder.Configuration["Azure:OpenAI:Endpoint"]))
+{
     builder.Services.AddSingleton<IReportService, AzureOpenAIReportService>();
+    builder.Services.AddSingleton<IDamageReviewService, AzureOpenAIDamageReviewService>();
+}
 else
+{
     builder.Services.AddTransient<IReportService, FakeReportService>();
+    builder.Services.AddTransient<IDamageReviewService, FakeDamageReviewService>();
+}
 
 builder.Services.AddSingleton<IPhotoStorageService, LocalPhotoStorageService>();
 builder.Services.AddSingleton<IImageResizeService, SkiaImageResizeService>();
+builder.Services.AddSingleton<IPhotoAnnotationService, SkiaPhotoAnnotationService>();
 
 var app = builder.Build();
 

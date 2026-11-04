@@ -14,6 +14,14 @@ namespace Dentify.Domain.Entities
         [MaxLength(500)]
         public string Url { get; set; }
 
+        // Copy of the photo with the boxes of the trained model (all proposed damages)
+        [MaxLength(500)]
+        public string? ModelResultUrl { get; set; }
+
+        // Copy of the photo after the AI review: confirmed boxes, rejected ones dashed
+        [MaxLength(500)]
+        public string? ReviewResultUrl { get; set; }
+
         public DateTime UploadedAt { get; set; }
 
         // Foreign key + navigation (many side of Inspection)
