@@ -39,7 +39,7 @@
                                 IsEnabled="{Binding IsNotBusy}"
                                 SemanticProperties.Hint="Takes a photo of the plate and fills it in" />
                         <Button Grid.Column="1"
-                                Text="Plate from gallery"
+                                Text="From gallery"
                                 Style="{StaticResource SecondaryButton}"
                                 ImageSource="ic_gallery.png"
                                 ContentLayout="Left,8"

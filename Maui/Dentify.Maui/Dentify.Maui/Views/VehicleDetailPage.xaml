@@ -138,11 +138,13 @@
                                     Command="{Binding OpenInspectionCommand, Source={RelativeSource AncestorType={x:Type viewModels:VehicleDetailViewModel}}, x:DataType=viewModels:VehicleDetailViewModel}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="72,*,Auto,Auto" ColumnSpacing="14">
+                            <!-- Status badge under the text, so the row fits a phone -->
+                            <Grid ColumnDefinitions="64,*,Auto" ColumnSpacing="14">
 
                                 <!-- Cover photo, or a placeholder while loading or without photos -->
-                                <Border WidthRequest="72"
-                                        HeightRequest="72"
+                                <Border WidthRequest="64"
+                                        HeightRequest="64"
+                                        VerticalOptions="Center"
                                         StrokeThickness="0"
                                         StrokeShape="RoundRectangle 14"
                                         BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource LineDark}}">
@@ -163,38 +165,40 @@
                                 <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                                     <Label Text="{Binding TypeText}" Style="{StaticResource CardTitle}" />
                                     <Label Text="{Binding Inspection.Date, StringFormat='{0:dd MMM yyyy · HH:mm}'}"
-                                           Style="{StaticResource MutedText}" />
+                                           Style="{StaticResource MutedText}"
+                                           FontSize="13"
+                                           LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding Inspection.InspectorName}"
                                            Style="{StaticResource MutedText}"
                                            FontSize="13"
                                            LineBreakMode="TailTruncation" />
+
+                                    <!-- Damage status -->
+                                    <Border Style="{StaticResource Badge}"
+                                            HorizontalOptions="Start"
+                                            Margin="0,4,0,0">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="NoDamage">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource SuccessBackground}" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="Damage">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource SeverityModerateBackground}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Text="{Binding StatusText}" Style="{StaticResource BadgeText}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="NoDamage">
+                                                    <Setter Property="TextColor" Value="{StaticResource Success}" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Damage">
+                                                    <Setter Property="TextColor" Value="{StaticResource SeverityModerate}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
                                 </VerticalStackLayout>
 
-                                <!-- Damage status -->
-                                <Border Grid.Column="2"
-                                        Style="{StaticResource Badge}"
-                                        VerticalOptions="Center">
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="NoDamage">
-                                            <Setter Property="BackgroundColor" Value="{StaticResource SuccessBackground}" />
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="Damage">
-                                            <Setter Property="BackgroundColor" Value="{StaticResource SeverityModerateBackground}" />
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                    <Label Text="{Binding StatusText}" Style="{StaticResource BadgeText}">
-                                        <Label.Triggers>
-                                            <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="NoDamage">
-                                                <Setter Property="TextColor" Value="{StaticResource Success}" />
-                                            </DataTrigger>
-                                            <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Damage">
-                                                <Setter Property="TextColor" Value="{StaticResource SeverityModerate}" />
-                                            </DataTrigger>
-                                        </Label.Triggers>
-                                    </Label>
-                                </Border>
-
-                                <Image Grid.Column="3"
+                                <Image Grid.Column="2"
                                        Source="ic_chevron.png"
                                        WidthRequest="18"
                                        HeightRequest="18"
