@@ -105,7 +105,8 @@
                                     Command="{Binding SelectVehicleCommand, Source={RelativeSource AncestorType={x:Type viewModels:VehicleListViewModel}}, x:DataType=viewModels:VehicleListViewModel}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="14">
+                            <!-- Name on its own line, so it keeps the full width on a phone -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                                 <Border Style="{StaticResource IconTile}" VerticalOptions="Center">
                                     <Image Source="ic_car.png" WidthRequest="26" HeightRequest="26">
                                         <Image.Triggers>
@@ -115,7 +116,7 @@
                                         </Image.Triggers>
                                     </Image>
                                 </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
                                     <Label Style="{StaticResource CardTitle}"
                                            LineBreakMode="TailTruncation">
                                         <Label.Text>
@@ -125,23 +126,29 @@
                                             </MultiBinding>
                                         </Label.Text>
                                     </Label>
-                                    <Label Text="{Binding Type}" Style="{StaticResource MutedText}" FontSize="13" />
-                                </VerticalStackLayout>
-                                <Border Grid.Column="2"
-                                        Style="{StaticResource PlateChip}"
-                                        VerticalOptions="Center">
-                                    <Grid ColumnDefinitions="Auto,Auto">
-                                        <Border Style="{StaticResource PlateBand}">
-                                            <Label Style="{StaticResource PlateBandText}" />
+                                    <HorizontalStackLayout Spacing="10">
+                                        <Border Style="{StaticResource PlateChip}" VerticalOptions="Center">
+                                            <Grid ColumnDefinitions="Auto,Auto">
+                                                <Border Style="{StaticResource PlateBand}" Padding="4,0">
+                                                    <Label Style="{StaticResource PlateBandText}" FontSize="9" Margin="0,0,0,2" />
+                                                </Border>
+                                                <Label Grid.Column="1"
+                                                       Text="{Binding LicensePlate}"
+                                                       Style="{StaticResource PlateText}"
+                                                       FontSize="13"
+                                                       Margin="6,2,8,2" />
+                                            </Grid>
                                         </Border>
-                                        <Label Grid.Column="1" Text="{Binding LicensePlate}" Style="{StaticResource PlateText}" FontSize="14" />
-                                    </Grid>
-                                </Border>
-                                <Image Grid.Column="3"
+                                        <Label Text="{Binding Type}"
+                                               Style="{StaticResource MutedText}"
+                                               FontSize="13"
+                                               VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                                <Image Grid.Column="2"
                                        Source="ic_chevron.png"
                                        WidthRequest="18"
                                        HeightRequest="18"
-                                       Margin="2,0,0,0"
                                        VerticalOptions="Center" />
                             </Grid>
                         </Border>

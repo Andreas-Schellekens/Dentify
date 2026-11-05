@@ -62,6 +62,15 @@ namespace Dentify.Maui
             Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
             Routing.RegisterRoute(nameof(VehicleFormPage), typeof(VehicleFormPage));
 
+            // Fields sit in their own rounded box (FormField), so the Android underline of an Entry is not needed
+            Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+            {
+#if ANDROID
+                handler.PlatformView.BackgroundTintList =
+                    Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+#endif
+            });
+
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif

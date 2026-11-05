@@ -18,8 +18,9 @@
         <Setter Property="StrokeThickness" Value="1"/>
     </Style>
 
+    <!-- Transparent by default: BoxViews are used as spacers, dividers and color stripes that set Color themselves -->
     <Style TargetType="BoxView">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
     </Style>
 
     <Style TargetType="Button">

@@ -13,7 +13,8 @@
 
                 <!-- Vehicle -->
                 <Border Style="{StaticResource Card}" Padding="14">
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <!-- Plate under the name, so the name keeps the full width on a phone -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
                         <Border Style="{StaticResource IconTile}" VerticalOptions="Center">
                             <Image Source="ic_car.png" WidthRequest="26" HeightRequest="26">
                                 <Image.Triggers>
@@ -33,15 +34,15 @@
                                     </MultiBinding>
                                 </Label.Text>
                             </Label>
+                            <Border Style="{StaticResource PlateChip}" HorizontalOptions="Start" Margin="0,6,0,0">
+                                <Grid ColumnDefinitions="Auto,Auto">
+                                    <Border Style="{StaticResource PlateBand}">
+                                        <Label Style="{StaticResource PlateBandText}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{Binding Vehicle.LicensePlate}" Style="{StaticResource PlateText}" />
+                                </Grid>
+                            </Border>
                         </VerticalStackLayout>
-                        <Border Style="{StaticResource PlateChip}" Grid.Column="2" VerticalOptions="Center">
-                            <Grid ColumnDefinitions="Auto,Auto">
-                                <Border Style="{StaticResource PlateBand}">
-                                    <Label Style="{StaticResource PlateBandText}" />
-                                </Border>
-                                <Label Grid.Column="1" Text="{Binding Vehicle.LicensePlate}" Style="{StaticResource PlateText}" />
-                            </Grid>
-                        </Border>
                     </Grid>
                 </Border>
 
