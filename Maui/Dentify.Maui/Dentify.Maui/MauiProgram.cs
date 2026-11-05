@@ -1,4 +1,4 @@
-﻿using Dentify.Maui.Services;
+using Dentify.Maui.Services;
 using Dentify.Maui.ViewModels;
 using Dentify.Maui.Views;
 using Microsoft.Extensions.Logging;
@@ -14,8 +14,12 @@ namespace Dentify.Maui
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    // Plus Jakarta Sans (SIL Open Font License, see Resources/Fonts/PlusJakartaSans-OFL.txt)
+                    fonts.AddFont("PlusJakartaSans-Regular.ttf", "JakartaRegular");
+                    fonts.AddFont("PlusJakartaSans-Medium.ttf", "JakartaMedium");
+                    fonts.AddFont("PlusJakartaSans-SemiBold.ttf", "JakartaSemiBold");
+                    fonts.AddFont("PlusJakartaSans-Bold.ttf", "JakartaBold");
+                    fonts.AddFont("PlusJakartaSans-ExtraBold.ttf", "JakartaExtraBold");
                 });
 
             // Services

@@ -7,19 +7,17 @@
              Title="Settings">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20,16" Spacing="16" MaximumWidthRequest="{StaticResource ContentMaxWidth}">
+        <VerticalStackLayout Padding="20,16" Spacing="18" MaximumWidthRequest="{StaticResource ContentMaxWidth}">
 
             <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="10">
+                <VerticalStackLayout Spacing="12">
                     <Label Text="API URL"
                            Style="{StaticResource SectionTitle}"
                            SemanticProperties.HeadingLevel="Level1" />
                     <Label Style="{StaticResource MutedText}"
                            Text="On a phone, paste the https URL from Ngrok (ngrok http 5152). Ngrok gives a new URL every time it restarts." />
 
-                    <Border Style="{StaticResource Badge}"
-                            Padding="12,6"
-                            StrokeShape="RoundRectangle 12">
+                    <Border Style="{StaticResource FormField}">
                         <Entry Text="{Binding ApiBaseUrl}"
                                Style="{StaticResource FormEntry}"
                                Keyboard="Url"
@@ -33,7 +31,7 @@
                         <Label.FormattedText>
                             <FormattedString>
                                 <Span Text="Default on this device: " />
-                                <Span Text="{Binding DefaultApiBaseUrl}" FontFamily="OpenSansSemibold" />
+                                <Span Text="{Binding DefaultApiBaseUrl}" FontFamily="JakartaSemiBold" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
@@ -46,9 +44,10 @@
 
             <Border Style="{StaticResource Card}"
                     BackgroundColor="{StaticResource SuccessBackground}"
-                    Stroke="{StaticResource Success}"
+                    Stroke="#A8DDB9"
+                    Shadow="{x:Null}"
                     IsVisible="{Binding HasSuccess}">
-                <Label Text="{Binding SuccessMessage}" TextColor="{StaticResource Success}" />
+                <Label Text="{Binding SuccessMessage}" TextColor="{StaticResource Success}" FontFamily="JakartaSemiBold" />
             </Border>
 
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
@@ -64,9 +63,8 @@
                     IsEnabled="{Binding IsNotBusy}" />
 
             <Button Text="Reset to default"
-                    Command="{Binding ResetToDefaultCommand}"
-                    BackgroundColor="Transparent"
-                    TextColor="{AppThemeBinding Light={StaticResource MutedLight}, Dark={StaticResource MutedDark}}" />
+                    Style="{StaticResource GhostButton}"
+                    Command="{Binding ResetToDefaultCommand}" />
         </VerticalStackLayout>
     </ScrollView>
 

@@ -23,10 +23,10 @@
         </VerticalStackLayout>
 
         <ScrollView IsVisible="{Binding HasInspection}">
-            <VerticalStackLayout Padding="20,16,20,24" Spacing="18">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="20">
 
                 <!-- Damage status -->
-                <Border Style="{StaticResource Card}" Padding="20" StrokeThickness="0">
+                <Border Style="{StaticResource Card}" Padding="22" StrokeThickness="0" StrokeShape="RoundRectangle 24">
                     <Border.Triggers>
                         <!-- The labels use dark ink on light status colors, so "no photos" needs a light background too -->
                         <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="NoPhotos">
@@ -45,14 +45,15 @@
                             <Setter Property="BackgroundColor" Value="{StaticResource SeveritySevereBackground}" />
                         </DataTrigger>
                     </Border.Triggers>
-                    <VerticalStackLayout Spacing="4">
+                    <VerticalStackLayout Spacing="6">
                         <Label Text="INSPECTION SAVED"
                                Style="{StaticResource Caption}"
                                TextColor="{StaticResource InkLight}"
                                IsVisible="{Binding IsJustSaved}" />
                         <Label Text="{Binding StatusTitle}"
-                               FontFamily="OpenSansSemibold"
-                               FontSize="24"
+                               FontFamily="JakartaExtraBold"
+                               FontSize="26"
+                               CharacterSpacing="-0.5"
                                TextColor="{StaticResource InkLight}"
                                SemanticProperties.HeadingLevel="Level1">
                             <Label.Triggers>
@@ -81,17 +82,29 @@
                 <Border Style="{StaticResource Card}">
                     <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="12">
                         <Border Style="{StaticResource PlateChip}" HorizontalOptions="Start">
-                            <Label Text="{Binding Inspection.VehicleLicensePlate}" Style="{StaticResource PlateText}" />
+                            <Grid ColumnDefinitions="Auto,Auto">
+                                <Border Style="{StaticResource PlateBand}">
+                                    <Label Style="{StaticResource PlateBandText}" />
+                                </Border>
+                                <Label Grid.Column="1" Text="{Binding Inspection.VehicleLicensePlate}" Style="{StaticResource PlateText}" />
+                            </Grid>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource Badge}" VerticalOptions="Center">
                             <Label Text="{Binding TypeText}" Style="{StaticResource BadgeText}" />
                         </Border>
-                        <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="2">
-                            <Label Text="{Binding Inspection.Date, StringFormat='{0:dd MMM yyyy · HH:mm}'}"
-                                   Style="{StaticResource BodyText}" />
-                            <Label Text="{Binding Inspection.InspectorName, StringFormat='By {0}'}"
-                                   Style="{StaticResource MutedText}" />
-                        </VerticalStackLayout>
+                        <Grid Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="0,4,0,0">
+                            <Border Style="{StaticResource IconTile}" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 12">
+                                <Image Source="ic_calendar.png" WidthRequest="20" HeightRequest="20" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                <Label Text="{Binding Inspection.Date, StringFormat='{0:dd MMM yyyy · HH:mm}'}"
+                                       Style="{StaticResource BodyText}"
+                                       FontFamily="JakartaSemiBold" />
+                                <Label Text="{Binding Inspection.InspectorName, StringFormat='By {0}'}"
+                                       Style="{StaticResource MutedText}"
+                                       FontSize="13" />
+                            </VerticalStackLayout>
+                        </Grid>
                     </Grid>
                 </Border>
 
@@ -101,29 +114,31 @@
 
                     <!-- Step 1: the trained model, step 2: the AI check of its boxes -->
                     <VerticalStackLayout Spacing="8" IsVisible="{Binding HasDamageBoxes}">
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Border Style="{StaticResource SegmentBar}">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
                             <Button Text="1. Custom Vision"
-                                    Style="{StaticResource SecondaryButton}"
+                                    Style="{StaticResource SegmentButton}"
                                     Command="{Binding ShowModelCommand}">
                                 <Button.Triggers>
                                     <DataTrigger TargetType="Button" Binding="{Binding ShowReviewResult}" Value="False">
-                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SegmentSelectedDark}}" />
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource PrimaryDark}}" />
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
                             <Button Grid.Column="1"
                                     Text="2. AI check"
-                                    Style="{StaticResource SecondaryButton}"
+                                    Style="{StaticResource SegmentButton}"
                                     Command="{Binding ShowReviewCommand}">
                                 <Button.Triggers>
                                     <DataTrigger TargetType="Button" Binding="{Binding ShowReviewResult}" Value="True">
-                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SegmentSelectedDark}}" />
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource PrimaryDark}}" />
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
                         </Grid>
+                        </Border>
                         <Label Text="{Binding PhotoLegend}" Style="{StaticResource MutedText}" FontSize="13" />
                     </VerticalStackLayout>
 
@@ -138,7 +153,7 @@
                                 <Border WidthRequest="320"
                                         HeightRequest="240"
                                         StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 14"
+                                        StrokeShape="RoundRectangle 18"
                                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource CardDark}}">
                                     <Grid>
                                         <ActivityIndicator IsRunning="{Binding IsLoaded, Converter={StaticResource InverseBoolConverter}}"
@@ -157,10 +172,16 @@
                 </VerticalStackLayout>
 
                 <!-- AI report -->
-                <Border Style="{StaticResource Card}" Padding="18" IsVisible="{Binding HasSummary}">
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="AI REPORT" Style="{StaticResource Caption}" />
-                        <Label Text="{Binding Inspection.AiSummary}" Style="{StaticResource BodyText}" LineHeight="1.3" />
+                <Border Style="{StaticResource AiCard}" IsVisible="{Binding HasSummary}">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Image Source="ic_sparkle.png" WidthRequest="18" HeightRequest="18" VerticalOptions="Center" />
+                            <Label Text="AI REPORT" Style="{StaticResource AiCaption}" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding Inspection.AiSummary}" Style="{StaticResource BodyText}" LineHeight="1.35" />
+                        <Label Text="Written by Azure OpenAI from the detected damages."
+                               Style="{StaticResource MutedText}"
+                               FontSize="12" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -170,44 +191,81 @@
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding Damages}" Spacing="10">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="contracts:DamageListDto">
-                                <Border Style="{StaticResource Card}" Padding="14">
-                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6" ColumnSpacing="12">
-                                        <Label Text="{Binding Description}" Style="{StaticResource CardTitle}" />
-                                        <Border Grid.Column="1" Style="{StaticResource Badge}" VerticalOptions="Start">
-                                            <Border.Triggers>
-                                                <DataTrigger TargetType="Border" Binding="{Binding Severity}" Value="Minor">
-                                                    <Setter Property="BackgroundColor" Value="{StaticResource SeverityMinorBackground}" />
+                                <!-- Severity stripe on the left, confidence as a bar -->
+                                <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,2">
+                                    <Grid ColumnDefinitions="6,*">
+                                        <BoxView>
+                                            <BoxView.Triggers>
+                                                <DataTrigger TargetType="BoxView" Binding="{Binding Severity}" Value="Minor">
+                                                    <Setter Property="Color" Value="{StaticResource SeverityMinor}" />
                                                 </DataTrigger>
-                                                <DataTrigger TargetType="Border" Binding="{Binding Severity}" Value="Moderate">
-                                                    <Setter Property="BackgroundColor" Value="{StaticResource SeverityModerateBackground}" />
+                                                <DataTrigger TargetType="BoxView" Binding="{Binding Severity}" Value="Moderate">
+                                                    <Setter Property="Color" Value="{StaticResource SeverityModerate}" />
                                                 </DataTrigger>
-                                                <DataTrigger TargetType="Border" Binding="{Binding Severity}" Value="Severe">
-                                                    <Setter Property="BackgroundColor" Value="{StaticResource SeveritySevereBackground}" />
+                                                <DataTrigger TargetType="BoxView" Binding="{Binding Severity}" Value="Severe">
+                                                    <Setter Property="Color" Value="{StaticResource SeveritySevere}" />
                                                 </DataTrigger>
-                                            </Border.Triggers>
-                                            <Label Text="{Binding Severity}" Style="{StaticResource BadgeText}">
-                                                <Label.Triggers>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding Severity}" Value="Minor">
-                                                        <Setter Property="TextColor" Value="{StaticResource SeverityMinor}" />
+                                            </BoxView.Triggers>
+                                        </BoxView>
+                                        <Grid Grid.Column="1"
+                                              Padding="14,14,16,14"
+                                              ColumnDefinitions="*,Auto"
+                                              RowDefinitions="Auto,Auto,Auto"
+                                              RowSpacing="8"
+                                              ColumnSpacing="12">
+                                            <Label Text="{Binding Description}" Style="{StaticResource CardTitle}" VerticalOptions="Center" />
+                                            <Border Grid.Column="1" Style="{StaticResource Badge}" VerticalOptions="Center">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding Severity}" Value="Minor">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource SeverityMinorBackground}" />
                                                     </DataTrigger>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding Severity}" Value="Moderate">
-                                                        <Setter Property="TextColor" Value="{StaticResource SeverityModerate}" />
+                                                    <DataTrigger TargetType="Border" Binding="{Binding Severity}" Value="Moderate">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource SeverityModerateBackground}" />
                                                     </DataTrigger>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding Severity}" Value="Severe">
-                                                        <Setter Property="TextColor" Value="{StaticResource SeveritySevere}" />
+                                                    <DataTrigger TargetType="Border" Binding="{Binding Severity}" Value="Severe">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource SeveritySevereBackground}" />
                                                     </DataTrigger>
-                                                </Label.Triggers>
+                                                </Border.Triggers>
+                                                <Label Text="{Binding Severity}" Style="{StaticResource BadgeText}">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Severity}" Value="Minor">
+                                                            <Setter Property="TextColor" Value="{StaticResource SeverityMinor}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Severity}" Value="Moderate">
+                                                            <Setter Property="TextColor" Value="{StaticResource SeverityModerate}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Severity}" Value="Severe">
+                                                            <Setter Property="TextColor" Value="{StaticResource SeveritySevere}" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                            <Label Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource MutedText}" FontSize="13">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding Location}" />
+                                                        <Span Text="  ·  " />
+                                                        <Span Text="{Binding Confidence, StringFormat='{0:P0} confidence'}" FontFamily="JakartaSemiBold" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
                                             </Label>
-                                        </Border>
-                                        <Label Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource MutedText}">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="{Binding Location}" />
-                                                    <Span Text="  ·  " />
-                                                    <Span Text="{Binding Confidence, StringFormat='{0:P0} confidence'}" />
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
+                                            <ProgressBar Grid.Row="2"
+                                                         Grid.ColumnSpan="2"
+                                                         Progress="{Binding Confidence}"
+                                                         SemanticProperties.Description="Confidence of the model">
+                                                        <ProgressBar.Triggers>
+                                                            <DataTrigger TargetType="ProgressBar" Binding="{Binding Severity}" Value="Minor">
+                                                                <Setter Property="ProgressColor" Value="{StaticResource SeverityMinor}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="ProgressBar" Binding="{Binding Severity}" Value="Moderate">
+                                                                <Setter Property="ProgressColor" Value="{StaticResource SeverityModerate}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="ProgressBar" Binding="{Binding Severity}" Value="Severe">
+                                                                <Setter Property="ProgressColor" Value="{StaticResource SeveritySevere}" />
+                                                            </DataTrigger>
+                                                        </ProgressBar.Triggers>
+                                            </ProgressBar>
+                                        </Grid>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -218,7 +276,7 @@
                 <Button Text="Done"
                         Style="{StaticResource PrimaryButton}"
                         Command="{Binding DoneCommand}"
-                        Margin="0,6,0,0" />
+                        Margin="0,8,0,0" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

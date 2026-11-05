@@ -12,9 +12,18 @@
             <VerticalStackLayout Padding="20,16,20,8" Spacing="18">
 
                 <!-- Vehicle -->
-                <Border Style="{StaticResource Card}">
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                <Border Style="{StaticResource Card}" Padding="14">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                        <Border Style="{StaticResource IconTile}" VerticalOptions="Center">
+                            <Image Source="ic_car.png" WidthRequest="26" HeightRequest="26">
+                                <Image.Triggers>
+                                    <DataTrigger TargetType="Image" Binding="{Binding Vehicle.Type}" Value="Van">
+                                        <Setter Property="Source" Value="ic_van.png" />
+                                    </DataTrigger>
+                                </Image.Triggers>
+                            </Image>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="VEHICLE" Style="{StaticResource Caption}" />
                             <Label Style="{StaticResource CardTitle}" LineBreakMode="TailTruncation">
                                 <Label.Text>
@@ -25,8 +34,13 @@
                                 </Label.Text>
                             </Label>
                         </VerticalStackLayout>
-                        <Border Grid.Column="1" Style="{StaticResource PlateChip}" VerticalOptions="Center">
-                            <Label Text="{Binding Vehicle.LicensePlate}" Style="{StaticResource PlateText}" />
+                        <Border Style="{StaticResource PlateChip}" Grid.Column="2" VerticalOptions="Center">
+                            <Grid ColumnDefinitions="Auto,Auto">
+                                <Border Style="{StaticResource PlateBand}">
+                                    <Label Style="{StaticResource PlateBandText}" />
+                                </Border>
+                                <Label Grid.Column="1" Text="{Binding Vehicle.LicensePlate}" Style="{StaticResource PlateText}" />
+                            </Grid>
                         </Border>
                     </Grid>
                 </Border>
@@ -34,38 +48,40 @@
                 <!-- Type -->
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Type" Style="{StaticResource SectionTitle}" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Border Style="{StaticResource SegmentBar}">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
                         <Button Text="Departure"
-                                Style="{StaticResource SecondaryButton}"
+                                Style="{StaticResource SegmentButton}"
                                 Command="{Binding SelectDepartureCommand}"
                                 IsEnabled="{Binding IsNotBusy}">
                             <Button.Triggers>
                                 <DataTrigger TargetType="Button" Binding="{Binding IsDeparture}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SegmentSelectedDark}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource PrimaryDark}}" />
                                 </DataTrigger>
                             </Button.Triggers>
                         </Button>
                         <Button Grid.Column="1"
                                 Text="Return"
-                                Style="{StaticResource SecondaryButton}"
+                                Style="{StaticResource SegmentButton}"
                                 Command="{Binding SelectReturnCommand}"
                                 IsEnabled="{Binding IsNotBusy}">
                             <Button.Triggers>
                                 <DataTrigger TargetType="Button" Binding="{Binding IsReturn}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SegmentSelectedDark}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource PrimaryDark}}" />
                                 </DataTrigger>
                             </Button.Triggers>
                         </Button>
                     </Grid>
+                    </Border>
                     <Label Text="{Binding TypeHint}" Style="{StaticResource MutedText}" />
                 </VerticalStackLayout>
 
                 <!-- Inspector -->
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Inspector" Style="{StaticResource SectionTitle}" />
-                    <Border Style="{StaticResource Card}" Padding="12,2" StrokeShape="RoundRectangle 12">
+                    <Border Style="{StaticResource FormField}">
                         <Entry Text="{Binding InspectorName}"
                                Style="{StaticResource FormEntry}"
                                Placeholder="Your name"
@@ -86,8 +102,11 @@
                     </Grid>
 
                     <Border Style="{StaticResource Card}"
-                            Padding="18"
-                            StrokeDashArray="4,3"
+                            Padding="22"
+                            Shadow="{x:Null}"
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource LineDark}}"
+                            StrokeThickness="1.5"
+                            StrokeDashArray="5,4"
                             IsVisible="{Binding HasPhotos, Converter={StaticResource InverseBoolConverter}}">
                         <Label Text="Photograph the vehicle from every side: front, back, both sides and any spot that looks damaged. Up to 8 photos."
                                Style="{StaticResource MutedText}"
@@ -100,8 +119,8 @@
                                 IsVisible="{Binding HasPhotos}">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:SelectedPhoto">
-                                <Grid WidthRequest="100" HeightRequest="100" Margin="0,0,10,10">
-                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                                <Grid WidthRequest="104" HeightRequest="104" Margin="0,0,10,10">
+                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 16">
                                         <Image Source="{Binding Preview}"
                                                Aspect="AspectFill"
                                                SemanticProperties.Description="Inspection photo" />
@@ -134,11 +153,15 @@
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding CanAddPhotos}">
                         <Button Text="Take photo"
                                 Style="{StaticResource SecondaryButton}"
+                                ImageSource="ic_camera.png"
+                                ContentLayout="Left,8"
                                 Command="{Binding TakePhotoCommand}"
                                 IsVisible="{Binding IsCaptureSupported}" />
                         <Button Grid.Column="1"
                                 Text="From gallery"
                                 Style="{StaticResource SecondaryButton}"
+                                ImageSource="ic_gallery.png"
+                                ContentLayout="Left,8"
                                 Command="{Binding PickPhotosCommand}">
                             <!-- Full width when there is no camera button (Windows) -->
                             <Button.Triggers>
@@ -163,7 +186,7 @@
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                     <ActivityIndicator IsRunning="{Binding IsBusy}" WidthRequest="24" HeightRequest="24" />
                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                        <Label Text="{Binding ProgressText}" Style="{StaticResource BodyText}" FontFamily="OpenSansSemibold" />
+                        <Label Text="{Binding ProgressText}" Style="{StaticResource BodyText}" FontFamily="JakartaSemiBold" />
                         <Label Text="This can take a few seconds per photo." Style="{StaticResource MutedText}" FontSize="13" />
                     </VerticalStackLayout>
                 </Grid>

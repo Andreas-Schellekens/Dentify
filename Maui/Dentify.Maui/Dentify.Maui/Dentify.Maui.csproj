@@ -58,7 +58,8 @@
 		<MauiImage Include="Resources\Images\*" />
 		
 		<!-- Custom Fonts -->
-		<MauiFont Include="Resources\Fonts\*" />
+		<!-- Only the .ttf files: the folder also holds the font license -->
+		<MauiFont Include="Resources\Fonts\*.ttf" />
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
