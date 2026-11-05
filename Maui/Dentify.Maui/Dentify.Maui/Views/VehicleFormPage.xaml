@@ -8,24 +8,32 @@
 
     <Grid RowDefinitions="*,Auto" MaximumWidthRequest="{StaticResource ContentMaxWidth}">
         <ScrollView>
-            <VerticalStackLayout Padding="20,16,20,8" Spacing="18">
+            <VerticalStackLayout Padding="20,16,20,8" Spacing="22">
 
                 <!-- License plate: scan it, or type it -->
                 <VerticalStackLayout Spacing="8">
                     <Label Text="License plate" Style="{StaticResource SectionTitle}" />
-                    <!-- Same style as the other fields: a white plate-styled Entry rendered its text invisible on Windows -->
-                    <Border Style="{StaticResource Card}" Padding="12,2" StrokeShape="RoundRectangle 12">
-                        <Entry Text="{Binding LicensePlate}"
+                    <!-- A plain field with the EU band in front: a white plate-styled Entry rendered its text invisible on Windows -->
+                    <Border Style="{StaticResource FormField}" Padding="0,0,14,0">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource PlateBand}" Padding="9,0">
+                                <Label Style="{StaticResource PlateBandText}" FontSize="13" Margin="0,0,0,6" />
+                            </Border>
+                        <Entry Grid.Column="1"
+                               Text="{Binding LicensePlate}"
                                Style="{StaticResource FormEntry}"
                                Placeholder="1-ABC-123"
                                MaxLength="20"
-                               FontFamily="OpenSansSemibold"
+                               FontFamily="JakartaSemiBold"
                                IsEnabled="{Binding IsNotBusy}"
                                SemanticProperties.Description="License plate" />
+                        </Grid>
                     </Border>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Button Text="Scan plate"
                                 Style="{StaticResource SecondaryButton}"
+                                ImageSource="ic_camera.png"
+                                ContentLayout="Left,8"
                                 Command="{Binding ScanPlateWithCameraCommand}"
                                 IsVisible="{Binding IsCaptureSupported}"
                                 IsEnabled="{Binding IsNotBusy}"
@@ -33,6 +41,8 @@
                         <Button Grid.Column="1"
                                 Text="Plate from gallery"
                                 Style="{StaticResource SecondaryButton}"
+                                ImageSource="ic_gallery.png"
+                                ContentLayout="Left,8"
                                 Command="{Binding ScanPlateFromGalleryCommand}"
                                 IsEnabled="{Binding IsNotBusy}"
                                 SemanticProperties.Hint="Reads the plate from a photo and fills it in">
@@ -58,7 +68,7 @@
                 <!-- Brand and model -->
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Brand" Style="{StaticResource SectionTitle}" />
-                    <Border Style="{StaticResource Card}" Padding="12,2" StrokeShape="RoundRectangle 12">
+                    <Border Style="{StaticResource FormField}">
                         <Entry Text="{Binding Brand}"
                                Style="{StaticResource FormEntry}"
                                Placeholder="e.g. Renault"
@@ -70,7 +80,7 @@
 
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Model" Style="{StaticResource SectionTitle}" />
-                    <Border Style="{StaticResource Card}" Padding="12,2" StrokeShape="RoundRectangle 12">
+                    <Border Style="{StaticResource FormField}">
                         <Entry Text="{Binding Model}"
                                Style="{StaticResource FormEntry}"
                                Placeholder="e.g. Clio"
@@ -83,31 +93,37 @@
                 <!-- Type -->
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Type" Style="{StaticResource SectionTitle}" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Border Style="{StaticResource SegmentBar}">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
                         <Button Text="Car"
-                                Style="{StaticResource SecondaryButton}"
+                                Style="{StaticResource SegmentButton}"
+                                ImageSource="ic_car.png"
+                                ContentLayout="Left,8"
                                 Command="{Binding SelectCarCommand}"
                                 IsEnabled="{Binding IsNotBusy}">
                             <Button.Triggers>
                                 <DataTrigger TargetType="Button" Binding="{Binding IsCar}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SegmentSelectedDark}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource PrimaryDark}}" />
                                 </DataTrigger>
                             </Button.Triggers>
                         </Button>
                         <Button Grid.Column="1"
                                 Text="Van"
-                                Style="{StaticResource SecondaryButton}"
+                                Style="{StaticResource SegmentButton}"
+                                ImageSource="ic_van.png"
+                                ContentLayout="Left,8"
                                 Command="{Binding SelectVanCommand}"
                                 IsEnabled="{Binding IsNotBusy}">
                             <Button.Triggers>
                                 <DataTrigger TargetType="Button" Binding="{Binding IsVan}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SegmentSelectedDark}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource PrimaryDark}}" />
                                 </DataTrigger>
                             </Button.Triggers>
                         </Button>
                     </Grid>
+                    </Border>
                 </VerticalStackLayout>
 
                 <Border Style="{StaticResource ErrorCard}" IsVisible="{Binding HasError}">
@@ -121,7 +137,7 @@
                 Text="{Binding SaveButtonText}"
                 Style="{StaticResource PrimaryButton}"
                 Command="{Binding SaveCommand}"
-                Margin="20,8,20,16" />
+                Margin="20,8,20,18" />
     </Grid>
 
 </ContentPage>

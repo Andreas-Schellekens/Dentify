@@ -30,19 +30,33 @@
 
     <!-- Surfaces -->
     <Color x:Key="SurfaceLight">#F3F6F7</Color>
-    <Color x:Key="SurfaceDark">#10171D</Color>
+    <Color x:Key="SurfaceDark">#0C1217</Color>
     <Color x:Key="CardLight">White</Color>
-    <Color x:Key="CardDark">#1A232A</Color>
+    <Color x:Key="CardDark">#161F26</Color>
     <Color x:Key="LineLight">#E1E6E9</Color>
-    <Color x:Key="LineDark">#2A353D</Color>
+    <Color x:Key="LineDark">#24303A</Color>
     <Color x:Key="InkLight">#0F1B2D</Color>
     <Color x:Key="InkDark">#EEF3F5</Color>
     <Color x:Key="MutedLight">#5E6A73</Color>
     <Color x:Key="MutedDark">#9AA6AE</Color>
 
-    <!-- Belgian license plate: burgundy on white -->
+    <!-- Belgian license plate: burgundy on white, with the blue EU band -->
     <Color x:Key="PlateText">#A3172F</Color>
     <Color x:Key="PlateBackground">White</Color>
+    <Color x:Key="PlateEuBand">#003399</Color>
+
+    <!-- Icon tiles, segmented controls and the AI accent -->
+    <Color x:Key="TileLight">#DDEFF1</Color>
+    <Color x:Key="TileDark">#14303A</Color>
+    <Color x:Key="SegmentTrackLight">#E4EAED</Color>
+    <Color x:Key="SegmentTrackDark">#18222A</Color>
+    <Color x:Key="SegmentSelectedDark">#244651</Color>
+    <Color x:Key="AiAccent">#6D5BD0</Color>
+    <Color x:Key="AiAccentDark">#A99BF5</Color>
+    <Color x:Key="AiBackgroundLight">#F1EEFD</Color>
+    <Color x:Key="AiBackgroundDark">#1E1B33</Color>
+    <Color x:Key="HeroStart">#0B5563</Color>
+    <Color x:Key="HeroEnd">#0F7A86</Color>
 
     <!-- Status and damage severity -->
     <Color x:Key="Success">#15803D</Color>
