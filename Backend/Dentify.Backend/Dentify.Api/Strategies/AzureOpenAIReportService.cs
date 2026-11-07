@@ -23,6 +23,8 @@ namespace Dentify.Api.Strategies
             "Each current damage is labeled NEW or ALSO AT PREVIOUS INSPECTION when there is a previous inspection. " +
             "Follow these labels exactly, never decide this yourself. Start with the NEW damages, " +
             "and say they are likely new: the labels compare photo areas, not exact positions on the car. " +
+            "Without a previous inspection this is the first record of the vehicle: describe the damages as present " +
+            "at this inspection and never call them new. " +
             "Only damages marked LOW CONFIDENCE need to be checked by eye; do not call other damages uncertain. " +
             "Only use the data you receive, never invent damages, costs or causes. " +
             "No headings, no lists, no markdown.";
@@ -87,7 +89,7 @@ namespace Dentify.Api.Strategies
             if (previousInspection != null)
                 AppendInspection(text, "Previous inspection", previousInspection, null);
             else
-                text.AppendLine("There is no previous inspection of this vehicle.");
+                text.AppendLine("There is no previous inspection of this vehicle, so no damage can be called new.");
 
             return text.ToString();
         }
