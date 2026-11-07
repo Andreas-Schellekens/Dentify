@@ -18,8 +18,12 @@ namespace Dentify.Api.Strategies
             "You check the results of an image recognition model that looks for damage on vehicle photos. " +
             "You receive one photo and a numbered list of damages the model proposes, each with the area of the photo " +
             "where it was found. For each number, decide whether that damage is really visible on the vehicle in that area. " +
-            "Reflections, dirt, shadows, stickers, background objects and normal car parts are not damage. " +
-            "A tire only counts as flat when it is visibly deflated. When in doubt, reject. " +
+            "Dents and scratches are often small and subtle: a slight bend or ripple in a panel, or a thin line or scuff " +
+            "in the paint, is real damage. Confirm a dent or scratch when you see any sign of it in that area. " +
+            "Reject a damage only when that area clearly shows something else: a reflection, dirt, a shadow, a sticker, " +
+            "a background object or a normal car part such as a panel gap, trim line or door handle. " +
+            "Be strict for broken glass, broken lamps and flat tires: confirm glass or lamp damage only when cracks or " +
+            "missing pieces are visible, and a tire only when it is visibly deflated. " +
             "Return the numbers of the confirmed damages only.";
 
         // Strict JSON schema, so the answer can always be parsed
@@ -78,8 +82,9 @@ namespace Dentify.Api.Strategies
                     ResponseItem.CreateUserMessageItem(new[]
                     {
                         ResponseContentPart.CreateInputTextPart(DescribeCandidates(proposed)),
-                        // The photo is always a JPEG after IImageResizeService; the SDK reads the media type from BinaryData
-                        ResponseContentPart.CreateInputImagePart(BinaryData.FromBytes(imageData, "image/jpeg"))
+                        // The photo is always a JPEG after IImageResizeService; the SDK reads the media type from BinaryData.
+                        // High detail, so small dents and scratches are not lost in a downscaled copy
+                        ResponseContentPart.CreateInputImagePart(BinaryData.FromBytes(imageData, "image/jpeg"), ResponseImageDetailLevel.High)
                     })
                 }
             };
@@ -110,8 +115,16 @@ namespace Dentify.Api.Strategies
         {
             var text = new StringBuilder("Proposed damages:");
             for (var i = 0; i < candidates.Count; i++)
-                text.Append($"\n{i + 1}. {candidates[i].Description} in the {candidates[i].Location.ToLowerInvariant()} " +
-                            $"of the photo ({candidates[i].Confidence:P0})");
+            {
+                var candidate = candidates[i];
+                text.Append($"\n{i + 1}. {candidate.Description} in the {candidate.Location.ToLowerInvariant()} " +
+                            $"of the photo ({candidate.Confidence:P0})");
+
+                // The exact box helps the model look at the right spot, especially for small damages
+                if (candidate.Box != null)
+                    text.Append($", box from {candidate.Box.Left:P0} to {candidate.Box.Left + candidate.Box.Width:P0} " +
+                                $"of the width and {candidate.Box.Top:P0} to {candidate.Box.Top + candidate.Box.Height:P0} of the height");
+            }
 
             return text.ToString();
         }
